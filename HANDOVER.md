@@ -154,6 +154,7 @@ python3 tests/run_all.py --quick
 | `assets/diagnostic_tool.html` | `build_tool.py` |
 | `assets/items_manifest.json` | 同上 |
 | `assets/scale_names.json` | 同上 |
+| `index.html` | 同上（`assets/diagnostic_tool.html` と同一内容。存在する場合のみ `build_tool.py` が自動同期する。GitHub Pages配信用） |
 
 **HTMLを直接編集しないでください。** 次のビルドで上書きされます。
 必ず `build_tool.py` を直して再生成します。

@@ -2137,6 +2137,13 @@ def main():
     out = os.path.join(here, "..", "assets", "diagnostic_tool.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)
+
+    # GitHub Pages はリポジトリ直下の index.html を配信する。
+    # 既にその配置（Pages公開済み）のプロジェクトでだけ、ビルドのたびに同期する。
+    index_path = os.path.join(here, "..", "index.html")
+    if os.path.exists(index_path):
+        with open(index_path, "w", encoding="utf-8") as f:
+            f.write(html)
     names_path = os.path.join(here, "..", "assets", "scale_names.json")
     with open(names_path, "w", encoding="utf-8") as f:
         json.dump({"subscales": SUBSCALES, "tech": TECH, "poles": POLES},
@@ -2153,6 +2160,8 @@ def main():
     n_lik = sum(1 for i in items if i["type"] == "likert")
     n_ch = sum(1 for i in items if i["type"] == "choice")
     print(f"生成: {os.path.normpath(out)}")
+    if os.path.exists(index_path):
+        print(f"  同期: {os.path.normpath(index_path)}（GitHub Pages用）")
     print(f"  6件法 {n_lik}問 ／ 強制選択 {n_ch}問 ／ 合計 {len(items)}問")
     print(f"  短縮版 {sum(1 for i in items if i['short'])}問"
           f" ／ スクリーニング版 {sum(1 for i in items if i['screen'])}問")
