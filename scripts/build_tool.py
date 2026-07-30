@@ -1181,7 +1181,7 @@ function showResult(force){
        この文言も必ず合わせて見直すこと。 */
     h+='<p>ここから、あなたの回答をもとに、'+
        '<b>①行動の特徴とその位置づけ　②なぜ今そうなっているのか　③これからどうすればよいか</b>'+
-       'の順に説明していきます。判断に必要な情報は、そのつど本文中に記載します。</p>';
+       '　の順に説明していきます。判断に必要な情報は、そのつど本文中に記載します。</p>';
     h+='<p class="noprint"><button class="btn ghost" id="toggleEx" style="padding:5px 12px;font-size:12.5px">解説をすべて開く</button></p>';
   }
   SEC.title=h; h='';
@@ -1192,7 +1192,7 @@ function showResult(force){
     h+=ex("ここで何を見ているか",
       '<p>自分で答える診断は、本人にその意図がなくても回答が偏ります。'+
       'そこで結果を読む前に、この回答をそのまま解釈してよいかを先に確認します。'+
-      '臨床検査でいえば、検体を測定する前に精度管理試料を流すのと同じ位置づけです。</p>'+
+      '体重計に乗る前に、目盛りがゼロからずれていないかを確かめるのと同じ位置づけです。</p>'+
       '<p>確認しているのは次の3点です。</p><ul>'+
       '<li><b>回答が良い方向に偏っていないか</b>　「今まで一度も遅刻したことがない」のような、'+
       '現実にはまず当てはまらない内容へ、どれだけ肯定したか。'+
@@ -1648,7 +1648,7 @@ function showResult(force){
     const lead = t1
       ? "ここまでの内容を総合すると、あなたは"+t1+"にあたります。"+border+t3
       : "";
-    head3='<div class="card" style="border-width:2px;border-color:var(--accent)">'+
+    head3='<div class="card" style="border-width:2px;border-color:var(--accent);box-shadow:0 2px 10px rgba(33,80,112,.10)">'+
       '<h2 style="margin-top:0;border:0;padding:0">総合判定</h2>'+
       (lead? '<p style="margin-top:0">'+lead+'</p>':'')+
       '<dl class="kv">'+
@@ -1701,7 +1701,9 @@ function showResult(force){
      '結果は、今の環境の中でのあなたを写したものです。'+
      '環境が変われば結果も変わります。'+
      'レヴィンの理論そのものが「人は場との関わりの中で変わる」と言っているので、'+
-     'それは測りそこないではなく、理論どおりの出来事です。</div>';
+     'それは測りそこないではなく、理論どおりの出来事です。<br>'+
+     '強い疲労感や気分の落ち込みが続く場合は、この診断で対処しようとせず、'+
+     '産業医・心理士など専門家に相談してください。</div>';
 
   h = SEC.title + screenBody;
 
@@ -1929,7 +1931,7 @@ function portraitBlock(cls,d){
       '<b>位置のほうが本体で、呼び名は入り口です。</b>'+
       '0に近いほど、呼び名は入れ替わりやすくなります。</p>';
   }
-  return '<div class="card" style="border-width:2px;border-color:var(--accent)">'+
+  return '<div class="card" style="border-width:2px;border-color:var(--accent);box-shadow:0 2px 10px rgba(33,80,112,.10)">'+
     '<h2 style="margin-top:0;border:0;padding:0">いまのあなたの位置</h2>'+
     axes+
     '<div class="type">'+td.nick+'<span class="dim" style="font-size:14px;font-weight:400">'+
@@ -2157,9 +2159,15 @@ function equation(s,d,order){
   let pTxt;
   if(pBip.length===3 && pAbl.length===2){
     const hiK=pAbl[0], loK=pAbl[1];
+    /* 「強み」は band() の基準（60以上で中点より上）に合わせる。
+       pAbl内で相対的に高いというだけでhiKを「強み」と呼ぶと、
+       両方が40未満（不足水準）でも高いほうが強みとして表示され、
+       他章の「40未満＝不足」という基準と矛盾する。 */
     pTxt = 'あなたの中の5つの要素は、それぞれ次の位置にあります。'+
       pBip.map(k=>f(k)).join('、')+'という位置です。'+
-      '能力の面では'+f(hiK)+'が強みで、'+f(loK)+'は'+
+      '能力の面では'+
+      (T(s[hiK])>=60? f(hiK)+'が強みで、' : f(hiK)+'がやや高いものの際立った強みではなく、')+
+      f(loK)+'は'+
       (T(s[loK])<40? 'やや低く、ここに伸びしろがあります。' : '中点に近い範囲に収まっています。');
   } else if(spread < 10){
     pTxt = '自分の中の5つの項目に大きな差がありません（最も高い所と低い所の差は'+
