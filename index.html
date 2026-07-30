@@ -281,6 +281,12 @@ input:focus-visible,[tabindex]:focus-visible{
     その場面がそもそも自分に当てはまらないことを示すためのものです。</p>
   </div>
 
+  <div class="you"><b>このURLを誰に伝えても、回答や結果が他人に見られることはありません</b><br>
+    このツールは、開いているブラウザの中だけで計算しています。回答も点数も、
+    外部のサーバーには一切送信されません。同じURLを複数の人が開いても、
+    それぞれの回答・結果はその人自身の画面の中だけに残り、混ざったり、
+    他の人から見えたりすることはありません。</div>
+
   <div class="note">
     これは正式に検証された心理検査ではありません。レヴィンの理論枠組みを借りた、
     自己理解のための道具です。表示される点数は、多数の対象者を測定して作った基準ではなく、
@@ -331,6 +337,10 @@ const DOMAIN = {P:"本人の側の力",E:"環境の見え方",C:"迷う場面",F
 const DCOLOR = {P:"var(--p)",E:"var(--e)",C:"var(--c)",F:"var(--f)",G:"var(--g)"};
 const PER_PAGE = 8;
 const KEY = "lewin_diag_v1";
+/* 回答途中の再開（KEY）とは別に、完了した結果だけを別枠で覚えておく。
+   「3か月後に見るもの」の自動比較に使う。同じ端末・同じブラウザでのみ働く。 */
+const KEY_HIST = "lewin_diag_result_v1";
+const MODE_LABEL = {full:"標準版",short:"短縮版",screening:"スクリーニング版"};
 /* 項目文や採点式を変えるたびに上げる。読み込んだJSONの版がずれていても
    採点は試みるが、目立たない形で伝える（設問IDと逆転区分は今回変えていないため、
    version不一致でも採点自体は成立する）。 */
@@ -342,6 +352,13 @@ let mode="full", items=[], answers={}, page=0;
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify({mode,answers,page})); }catch(e){} }
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
 function clearSave(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+function saveResultSnapshot(order,s,mode){
+  try{
+    const scores={}; order.forEach(k=>{ if(s[k]!=null) scores[k]=T(s[k]); });
+    localStorage.setItem(KEY_HIST, JSON.stringify({date:new Date().toISOString(), mode, scores}));
+  }catch(e){}
+}
+function loadResultSnapshot(){ try{ return JSON.parse(localStorage.getItem(KEY_HIST)); }catch(e){ return null; } }
 
 /* ---------- 開始 ---------- */
 document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{ start(b.dataset.mode); });
@@ -1057,7 +1074,7 @@ function showResult(force){
       t+='　両極性では'+f(bpEnd[0])+'、'+f(bpEnd[1])+'が最も端に寄っています。'+
          'これは長所でも短所でもなく、あなたの行動を特徴づけている位置です。';
     }
-    if(t) h+=you(t+'　これらの組み合わせが、以降のタイプ判定と行動の式の内容を決めています。');
+    if(t) h+=you(t+'　これらの組み合わせが、次に示す「行動の式」の内容と、後半に示すタイプ判定を決めています。');
   }
 
   /* リーダーシップ */
@@ -1189,8 +1206,10 @@ function showResult(force){
   if(cls){
     const td=TYPEDESC[cls.name];
     h+='<h2>あなたのタイプと、組むとよい相手</h2>';
+    h+='<p class="dim">ここから先は、ここまでの内容を4つの「型」としてラベル化した補足情報です。'+
+      '型は入り口であり、上で見た位置や式のほうが本体です。</p>';
     h+=ex("この4つの型はどう決まっているのか",
-      '<p>前章の2つの指標を、縦軸と横軸に取った4分割です。'+
+      '<p>ここまでに見た2つの指標を、縦軸と横軸に取った4分割です。'+
       '性格の分類ではなく、<b>あなたが変化に対してどの位置にいるか</b>を表します。</p>'+
       '<ul><li><b>縦軸</b>　自分の中の基準で動くか、その場の条件で動くか</li>'+
       '<li><b>横軸</b>　変化を起こす側か、根づかせる側か</li></ul>'+
@@ -1251,7 +1270,7 @@ function showResult(force){
       '<p>同じ人物でも、置かれる場が変われば動き方は変わります。'+
       'だから性格だけを見ても実際の行動は予測できない。これがレヴィンの立場でした。</p>'+
       '<p>ここまでの点数を、その考え方に沿って1つの文章にまとめ直したのが下の記述です。'+
-      '前の章の打ち手は、この式から導いています。'+
+      'このあとに出てくる「まず何をするか」の打ち手は、この式から導いています。'+
       '<b>点数ではなく、この文章のほうを持ち帰ってください。</b></p>');
     h+=equation(s,d,order);
   }
@@ -1292,21 +1311,58 @@ function showResult(force){
   {
     const watch=[...new Set(acts.map(a=>a.k).filter(k=>k&&s[k]!=null))];
     if(watch.length){
-      secAction+='<div class="card"><h3 style="margin-top:0">3か月後に見るもの</h3>'+
-        '<p class="dim">全部を測り直す必要はありません。'+
-        '上の打ち手に対応する項目だけを比べてください。'+
-        'ただし前後の差が5点未満は、この診断の精度では変化として読めません'+
-        '（この目安は測定誤差から求めたものではなく、暫定的に置いた値です）。</p>'+
-        '<table><thead><tr><th>見る項目</th><th class="num">今回</th>'+
-        '<th class="num">次回</th></tr></thead><tbody>'+
-        watch.map(k=>'<tr><td>'+SUBNAMES[k]+'</td>'+
-          '<td class="num">'+T(s[k])+'</td><td class="num dim">—</td></tr>').join('')+
-        '</tbody></table></div>';
+      const prev=loadResultSnapshot();
+      const prevScores=prev&&prev.scores;
+      const hasPrev=!!(prevScores && watch.some(k=>prevScores[k]!=null));
+      secAction+='<div class="card"><h3 style="margin-top:0">3か月後に見るもの</h3>';
+      if(hasPrev){
+        const prevDate=new Date(prev.date).toLocaleDateString("ja-JP");
+        secAction+='<p class="dim">この端末に残っていた前回（'+prevDate+'）の記録と自動で比べています。'+
+          '他の人がこの記録を見ることはありません。'+
+          'ただし前後の差が5点未満は、この診断の精度では変化として読めません'+
+          '（この目安は測定誤差から求めたものではなく、暫定的に置いた値です）。</p>'+
+          (prev.mode && prev.mode!==mode
+            ? '<p class="dim">前回は'+MODE_LABEL[prev.mode]+'、今回は'+MODE_LABEL[mode]+'です。'+
+              '版が違うと精度が変わるため、目安としてご覧ください。</p>'
+            : '')+
+          '<table><thead><tr><th>見る項目</th><th class="num">前回</th>'+
+          '<th class="num">今回</th><th class="num">差</th></tr></thead><tbody>'+
+          watch.map(k=>{
+            const pv=prevScores[k], cv=T(s[k]);
+            const diff=(pv!=null)? Math.round((cv-pv)*10)/10 : null;
+            const diffTxt=diff==null? "—" : (diff>0?"+":"")+diff+(Math.abs(diff)<5?"（誤差の範囲）":"");
+            return '<tr><td>'+SUBNAMES[k]+'</td>'+
+              '<td class="num'+(pv==null?' dim':'')+'">'+(pv??"—")+'</td>'+
+              '<td class="num">'+cv+'</td>'+
+              '<td class="num'+(diff==null?' dim':'')+'">'+diffTxt+'</td></tr>';
+          }).join('')+
+          '</tbody></table>'+
+          '<p class="dim" style="margin-bottom:0">この自動比較は、同じ端末・同じブラウザで続けて使った場合にだけ働きます。'+
+          '別の端末で続きを見たいときは、下の「結果と回答を保存（JSON）」で書き出しておき、'+
+          '次回の開始画面にある「保存したデータを読み込む」から読み込んでください。</p>';
+      } else {
+        secAction+='<p class="dim">全部を測り直す必要はありません。'+
+          '上の打ち手に対応する項目だけを比べてください。'+
+          'ただし前後の差が5点未満は、この診断の精度では変化として読めません'+
+          '（この目安は測定誤差から求めたものではなく、暫定的に置いた値です）。'+
+          'この端末で3か月後にもう一度このページを開けば、今回の記録が自動で目印として残ります。</p>'+
+          '<table><thead><tr><th>見る項目</th><th class="num">今回</th>'+
+          '<th class="num">次回</th></tr></thead><tbody>'+
+          watch.map(k=>'<tr><td>'+SUBNAMES[k]+'</td>'+
+            '<td class="num">'+T(s[k])+'</td><td class="num dim">—</td></tr>').join('')+
+          '</tbody></table>';
+      }
+      secAction+='</div>';
     }
   }
   const secDetailNote=suggestions(s,d,order);
 
   SEC.action=secAction;
+  /* 妥当性の確認で複数警告が出ている（参考として読んでください、という
+     force表示の）結果は、信頼性が低いため次回比較の基準に使わない。
+     2件以上の警告で表示自体を見合わせているときは、この行より前で
+     return しているためそもそも到達しない。 */
+  if(!(va && va.verdict==="再実施を推奨")) saveResultSnapshot(order, s, mode);
 
   /* 場面別に落とす */
   const sc=scenes(s,d);
@@ -1325,7 +1381,7 @@ function showResult(force){
   /* ── ひとことまとめ（結論を最初に置く） ── */
   let head3='';
   {
-    /* 型名は直前のブロックで示しているので、ここでは人物像を1行で繰り返す */
+    /* 型名は先頭の「いまのあなたの位置」で示しているので、ここでは人物像を1行で繰り返す */
     const t1 = cls&&TYPEDESC[cls.name]
       ? "<b>"+TYPEDESC[cls.name].nick+"</b>（"+cls.name+"）"+
         (cls.border? "。ただし分かれ目に近いので、決めつけずに読んでください":"")
@@ -1341,15 +1397,20 @@ function showResult(force){
       (acts.length? '<dt>最初の一手</dt><dd><b>'+acts[0].t+'</b>'+
         '<span class="dim">　── 中身はすぐ下に</span></dd>':'')+
       '</dl><p class="dim" style="margin-bottom:0">'+
-      'ここから下は、この3行の理由です。'+
-      '時間がなければ「まず何をするか」だけ読んでも足ります。</p></div>';
+      'ここまでの、位置・図・式・力の場の内容をひとことでまとめました。'+
+      '時間がなければ、この下の「まず何をするか」だけ読んでも足ります。</p></div>';
   }
 
-  /* ── 画面用の組み立て：結論 → 打ち手 → 理解 → 詳細データ ──
+  /* ── 画面用の組み立て：位置 → 根拠 → まとめ → 打ち手 → 場面 → 型（補足） → 詳細データ ──
      測定の順（妥当性→素点→指標→類型）は分析する側の順序であって、
      読む側の順序ではない。読み手の問いは
-     「自分はどういう人か」「だから何をすればいいか」「なぜそう言えるか」
+     「自分はどういう人か」「なぜそう言えるか」「だから何をすればいいか」
      の順に来るので、その順に並べ替える。
+     型（4分類）は連続量である2軸の位置を切って呼び名にした入り口に
+     過ぎず、結論ではない（レヴィン自身が1931年に二分法的な分類を
+     批判している）。そのため「いまのあなたの位置」で軸の位置と型名の
+     両方に触れたあとは、型の詳しい説明（あなたのタイプと、組むとよい
+     相手）をサブコンテンツとして打ち手・場面のあとに回す。
      ただし21項目の図（能力系・両極性）とその読み方の解説は、
      折りたたみに入れず常時表示にする。図と、図を理解するための解説は
      省略してはならない要素であり、クリックしないと見えない場所に
@@ -1360,9 +1421,9 @@ function showResult(force){
      内容を一致させる（準拠させる）方針にしている。図を紙幅いっぱいに
      広げる・改ページを整える・折りたたみを開くといった印刷用の調整は
      CSS側（@media print）だけで行い、内容そのものは変えない。 */
-  let screenBody = portraitBlock(cls,d) + head3 + SEC.action
-    + SEC.scene + SEC.type + SEC.equation + SEC.force
-    + SEC.profile
+  let screenBody = portraitBlock(cls,d)
+    + SEC.profile + SEC.equation + SEC.force
+    + head3 + SEC.action + SEC.scene + SEC.type
     + (va && va.verdict==="範囲内"
         ? '<details class="ex"><summary>回答の確認（問題なし）</summary><div class="body">'
           + SEC.validity + '</div></details>'
@@ -1380,6 +1441,8 @@ function showResult(force){
      '中点スコアは、大勢の人を実際に測って作った基準ではなく、'+
      '「6段階の真ん中（3.50）を50とする」という決めごとから計算した仮の数です。<br>'+
      '病気の診断、向き不向きの判定、採用や人事評価には使わないでください。<br>'+
+     '回答や結果は、この端末・このブラウザの中だけで処理しています。'+
+     '外部のサーバーに送信されることはありません。<br>'+
      'そして結果は、今の環境の中でのあなたを写したものです。'+
      '環境が変われば結果も変わります。'+
      'レヴィンの理論そのものが「人は場との関わりの中で変わる」と言っているので、'+
