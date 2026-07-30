@@ -22,7 +22,7 @@ ROOT = os.path.normpath(os.path.join(HERE, '..'))
 # (表示名, コマンド, 合格条件, PDFを使うか)
 CHECKS = [
     ("ビルド（HTML再生成）",
-     ['python3', os.path.join('scripts', 'build_tool.py')],
+     [sys.executable, os.path.join('scripts', 'build_tool.py')],
      lambda out: '生成:' in out, False),
 
     ("JS構文チェック",
@@ -30,36 +30,36 @@ CHECKS = [
      None, False),
 
     ("採点スクリプトの動作",
-     ['python3', os.path.join('scripts', 'score.py'),
+     [sys.executable, os.path.join('scripts', 'score.py'),
       os.path.join('assets', 'example_answers.json')],
      lambda out: '中点スコア' in out or 'プロファイル' in out, False),
 
     ("重複・表記ゆれの検査",
-     ['python3', os.path.join('scripts', 'check_report.py'), '--quiet'],
+     [sys.executable, os.path.join('scripts', 'check_report.py'), '--quiet'],
      lambda out: '違反なし' in out, False),
 
     ("印刷レイアウトの検査",
-     ['python3', os.path.join('scripts', 'check_print.py'), '--quiet'],
+     [sys.executable, os.path.join('scripts', 'check_print.py'), '--quiet'],
      lambda out: '違反なし' in out, False),
 
-    ("機能の回帰テスト（29件）",
-     ['python3', os.path.join('tests', 'gen_full.py')],
+    ("機能の回帰テスト（32件）",
+     [sys.executable, os.path.join('tests', 'gen_full.py')],
      None, False),  # 生成後に node で実行するので特別扱い
 
     ("レヴィン理論の要点が残っているか",
-     ['python3', os.path.join('tests', 'verify_theory.py')],
+     [sys.executable, os.path.join('tests', 'verify_theory.py')],
      lambda out: 'すべて残っている' in out, False),
 
     ("章をまたぐ重複の検出",
-     ['python3', os.path.join('tests', 'dupcheck.py')],
+     [sys.executable, os.path.join('tests', 'dupcheck.py')],
      lambda out: '完全重複: 0件' in out, False),
 
     ("解説の折りたたみが既定で閉じているか",
-     ['python3', os.path.join('tests', 'verify_fold_correct.py')],
+     [sys.executable, os.path.join('tests', 'verify_fold_correct.py')],
      lambda out: '「この章の図の読み方」' in out and '閉じた折りたたみの中（非表示）' in out, False),
 
     ("印刷PDFの空白ページ検出",
-     ['python3', os.path.join('tests', 'print_iter.py')],
+     [sys.executable, os.path.join('tests', 'print_iter.py')],
      lambda out: 'ほぼ空白のページ: 0枚' in out, True),
 ]
 
@@ -85,7 +85,7 @@ def js_syntax_check():
 
 def regression_test():
     """gen_full.py がテスト用JSを生成し、それを node で実行する2段構え。"""
-    code, out = run(['python3', os.path.join('tests', 'gen_full.py')])
+    code, out = run([sys.executable, os.path.join('tests', 'gen_full.py')])
     if code != 0:
         return False, out[:300]
     tmp = os.path.join(os.environ.get('TMPDIR', '/tmp'), 'full.js')

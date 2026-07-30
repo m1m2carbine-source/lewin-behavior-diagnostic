@@ -230,6 +230,11 @@ TEMPLATE = r"""<!DOCTYPE html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="description" content="レヴィンの行動理論（B = f(P, E)）にもとづく、行動特性と変化への向き合い方のセルフチェックツール。回答はこの端末の中だけで処理され、外部には送信されません。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="レヴィン行動理論による特性診断">
+<meta property="og:description" content="レヴィンの行動理論（B = f(P, E)）にもとづく、行動特性と変化への向き合い方のセルフチェックツール。回答はこの端末の中だけで処理され、外部には送信されません。">
+<meta property="og:url" content="https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b6bcb'/%3E%3Ctext x='32' y='45' font-family='Arial,Helvetica,sans-serif' font-size='36' font-weight='700' fill='white' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
 <title>レヴィン行動理論による特性診断</title>
 <style>
@@ -2245,6 +2250,7 @@ def main():
             .replace("__POLES__", json.dumps(POLES, ensure_ascii=False))
             .replace("__ITEM_VERSION__", ITEM_VERSION))
     here = os.path.dirname(os.path.abspath(__file__))
+    os.makedirs(os.path.join(here, "..", "assets"), exist_ok=True)
     out = os.path.join(here, "..", "assets", "diagnostic_tool.html")
     with open(out, "w", encoding="utf-8") as f:
         f.write(html)

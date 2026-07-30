@@ -17,7 +17,7 @@ import sys
 
 sys.path.insert(0, _os.path.join(ROOT, 'scripts'))
 
-subprocess.run(['python3', _os.path.join('scripts', 'build_tool.py')],
+subprocess.run([sys.executable, _os.path.join('scripts', 'build_tool.py')],
                 cwd=ROOT, check=True)
 subprocess.run(['cp', _os.path.join(ROOT, 'assets', 'diagnostic_tool.html'),
                  _os.path.join(TMP, 'tool_for_preview.html')], check=True)

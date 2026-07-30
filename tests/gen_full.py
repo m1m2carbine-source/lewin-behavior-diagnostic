@@ -31,6 +31,17 @@ function fill(m,g3){
   var sd=13; var rnd=function(){sd=(sd*1103515245+12345)%2147483648;return sd/2147483648;};
   items.forEach(function(it){ answers[it.id]= it.type==="choice"?(g3||["a","b","c","d"][Math.floor(rnd()*4)]):1+Math.floor(rnd()*6); });
 }
+console.log("=== 採点関数の境界値 ===");
+check("T(3.5)は中点50", T(3.5)===50);
+check("band(70)はかなり上", band(70)==="中点よりかなり上");
+check("band(69.9)は上", band(69.9)==="中点より上");
+check("band(60)は上", band(60)==="中点より上");
+check("band(59.9)は中点に近い", band(59.9)==="中点に近い");
+check("band(40)は中点に近い", band(40)==="中点に近い");
+check("band(39.9)は下", band(39.9)==="中点より下");
+check("band(30)は下", band(30)==="中点より下");
+check("band(29.9)はかなり下", band(29.9)==="中点よりかなり下");
+check("band(null)は測定できません", band(null)==="測定できません");
 console.log("=== 3版の描画 ===");
 ["full","short","screening"].forEach(function(m){
   fill(m);
