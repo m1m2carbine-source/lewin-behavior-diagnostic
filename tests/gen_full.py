@@ -45,7 +45,7 @@ check("最初の見出しが位置の提示", hs[0]==="いまのあなたの位�
 check("2番目が21項目の図", hs[1]==="21項目の結果（図）");
 check("3番目が行動の式", hs[2]==="なぜそうなるのか　── あなたの行動の式");
 check("4番目が力の場", hs[3]==="いま動かないのは、力が拮抗しているから");
-check("5番目が結論", hs[4]==="ひとことでいうと");
+check("5番目が結論", hs[4]==="総合判定");
 check("6番目が打ち手", hs[5]==="この結果で、まず何をするか");
 check("場面別がある", hs.indexOf("場面別に見ると")>=0);
 check("反証チェックがある", out.indexOf("こんなこと、ありませんか")>=0);
@@ -72,7 +72,7 @@ showResult();
 check("ブロック画面が出る", _els["result"].innerHTML.indexOf("結果の表示を見合わせています")>=0);
 check("ブロック時もタイトルあり", _els["result"].innerHTML.indexOf("診断結果")>=0);
 _els["forceShow"].onclick();
-check("強制表示で結論が出る", _els["result"].innerHTML.indexOf("ひとことでいうと")>=0);
+check("強制表示で結論が出る", _els["result"].innerHTML.indexOf("総合判定")>=0);
 console.log("=== 往復 ===");
 fill("full","c"); showResult();
 var before=JSON.stringify(subscaleScores());
