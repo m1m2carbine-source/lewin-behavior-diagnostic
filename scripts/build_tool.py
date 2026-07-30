@@ -989,14 +989,16 @@ const BIPOLAR = {
 };
 
 /* ---------- 解説の部品 ---------- */
-/* 既定は閉じる。実測値・「あなたの場合」・図そのものはこの関数の外側で
-   別途出力しており、ここに渡すのは理論的な背景の説明だけなので、
-   閉じても個人化された結論は隠れない。openOnLoad=true を渡した箇所
-   （21項目の図の読み方）だけ、HANDOVER記載の「図と読み方の解説は
-   常時表示にする」という設計判断に従って既定で開く。
-   印刷は @media print の details{display:block!important} が
-   open 属性の有無に関わらず全文を強制的に開くため、
-   画面側を閉じても印刷内容は減らない（check_print.py で検証済み）。 */
+/* 既定はすべて閉じる。実測値・「あなたの場合」・図そのものはこの関数の
+   外側で別途出力しており、ここに渡すのは理論的な背景の説明だけなので、
+   閉じても個人化された結論は隠れない。各章の要点は、この折りたたみより
+   前に常時表示の導入文として出しているため、折りたたみ自体を開かせる
+   必要はない。
+   以前は「21項目の図の読み方」だけ openOnLoad=true で既定を開いていたが、
+   これは折りたたみが印刷で消える問題への対処だった。現在は
+   @media print の details{display:block!important} により、
+   開閉状態にかかわらず印刷時は全折りたたみが強制的に開くため
+   （check_print.py で検証済み）、この特例は不要になっている。 */
 function ex(title, body, openOnLoad){
   return '<details class="ex"'+(openOnLoad?' open':'')+'><summary>'+title+'</summary><div class="body">'+body+'</div></details>';
 }
@@ -1266,7 +1268,7 @@ function showResult(force){
   }
   const rk=order.filter(k=>s[k]!=null).sort((a,b)=>T(s[b])-T(s[a]));
 
-  h+='<h2>行動特性の内訳（図で見る）</h2>';
+  h+='<h2>行動特性の内訳</h2>';
   h+='<p class="dim">上の「いまのあなたの位置」は、これから見る21項目の回答をもとに算出しています。'+
      'まずはその内訳を、項目ごとに確認します。</p>';
   h+=ex("この章の図の読み方",
@@ -1286,33 +1288,13 @@ function showResult(force){
       'そこでこの9項目は横棒を塗らず、<b>左右の端にそれぞれの意味を書いた図</b>で、'+
       '「どちら寄りか」という位置として示します。'+
       '項目名も高い側・低い側どちらにも使える<b>物差しそのものの名前</b>です</li></ul>'+
-      '<p>残る1項目「人の動かし方」は選択式のため点数が出ず、この節の後半に別途示します。</p>',
-      true);
+      '<p>残る1項目「人の動かし方」は選択式のため点数が出ず、この節の後半に別途示します。</p>');
 
   h+='<h3>能力系の11項目　── 高いほうが有利</h3>';
   h+=abilityPlot(s,ABILITY);
 
   h+='<h3>両極性の9項目　── どちら寄りかを示すもので、優劣はありません</h3>';
   h+=bipolarPlot(s,BIPOLARK);
-
-  {
-    const abLow=ABILITY.filter(k=>s[k]!=null).sort((a,b)=>T(s[a])-T(s[b]));
-    const bpEnd=BIPOLARK.filter(k=>s[k]!=null)
-      .sort((a,b)=>Math.abs(T(s[b])-50)-Math.abs(T(s[a])-50));
-    let t='';
-    if(abLow.length>=2){
-      t+='能力系で最も低いのは<b>'+SUBNAMES[abLow[0]]+'（'+T(s[abLow[0]])+'）</b>と<b>'+
-         SUBNAMES[abLow[1]]+'（'+T(s[abLow[1]])+'）</b>です。'+
-         (T(s[abLow[0]])<40? 'ここが補強の余地にあたります。' : 'ただし、いずれも中点から大きくは離れていません。');
-    }
-    if(bpEnd.length>=2){
-      const f=(k)=>{ const v=T(s[k]);
-        return '<b>'+SUBNAMES[k]+'</b>（'+v+'／「'+sidePole(k,v)+'」の側）'; };
-      t+='　両極性では'+f(bpEnd[0])+'、'+f(bpEnd[1])+'が最も端に寄っています。'+
-         'これは長所でも短所でもなく、あなたの行動を特徴づけている位置です。';
-    }
-    if(t) h+=you(t+'　これらの組み合わせが、次に示す「行動の式」の内容と、後半に示すタイプ判定を決めています。');
-  }
 
   /* リーダーシップ */
   if(lp){
@@ -1371,6 +1353,25 @@ function showResult(force){
       }
       h+=you(t);
     }
+  }
+
+  {
+    const abLow=ABILITY.filter(k=>s[k]!=null).sort((a,b)=>T(s[a])-T(s[b]));
+    const bpEnd=BIPOLARK.filter(k=>s[k]!=null)
+      .sort((a,b)=>Math.abs(T(s[b])-50)-Math.abs(T(s[a])-50));
+    let t='';
+    if(abLow.length>=2){
+      t+='能力系で最も低いのは<b>'+SUBNAMES[abLow[0]]+'（'+T(s[abLow[0]])+'）</b>と<b>'+
+         SUBNAMES[abLow[1]]+'（'+T(s[abLow[1]])+'）</b>です。'+
+         (T(s[abLow[0]])<40? 'ここが補強の余地にあたります。' : 'ただし、いずれも中点から大きくは離れていません。');
+    }
+    if(bpEnd.length>=2){
+      const f=(k)=>{ const v=T(s[k]);
+        return '<b>'+SUBNAMES[k]+'</b>（'+v+'／「'+sidePole(k,v)+'」の側）'; };
+      t+='　両極性では'+f(bpEnd[0])+'、'+f(bpEnd[1])+'が最も端に寄っています。'+
+         'これは長所でも短所でもなく、あなたの行動を特徴づけている位置です。';
+    }
+    if(t) h+=you(t+'　これらの組み合わせが、次に示す「行動の式」の内容と、後半に示すタイプ判定を決めています。');
   }
 
   SEC.profile=h; h='';
@@ -1643,7 +1644,7 @@ function showResult(force){
       ? "とくに判断や着手が止まりやすいのは<b>"+CONFLICT_SCENE[d.weak]+"</b>の場面です。"
       : "";
     const lead = t1
-      ? "位置・図・式・力の場を総合すると、あなたは"+t1+"にあたります。"+border+t3
+      ? "ここまでの内容を総合すると、あなたは"+t1+"にあたります。"+border+t3
       : "";
     head3='<div class="card" style="border-width:2px;border-color:var(--accent)">'+
       '<h2 style="margin-top:0;border:0;padding:0">総合判定</h2>'+
@@ -1653,7 +1654,7 @@ function showResult(force){
       (acts.length? '<dt>最初にやること</dt><dd><b>'+acts[0].t+'</b>'+
         '<span class="dim">　── 中身はすぐ下に</span></dd>':'')+
       '</dl><p class="dim" style="margin-bottom:0">'+
-      'ここまでの、位置・図・式・力の場の内容を総合して判定しました。'+
+      'ここまでの内容を総合して判定しました。'+
       '時間がなければ、この下の「まず何をするか」だけ読んでも足ります。</p></div>';
   }
 
@@ -2144,8 +2145,21 @@ function equation(s,d,order){
                 : '低めなのは'+f(k)+'ですが、中点に近い範囲に収まっています。';
   };
   const spread = T(s[hi[0]]) - T(s[lo]);
+  /* この章は本ツールの主コンテンツなので、測定している5項目・3項目を
+     できるだけ本文の語りに含める。全項目そろっているときだけこの
+     フルプロファイル版を使い、そろわない版（スクリーニング等）では
+     従来どおり上位・下位だけを述べる簡易版にフォールバックする。 */
+  const pBip=["P1","P2","P3"].filter(k=>s[k]!=null)
+    .sort((a,b)=>Math.abs(T(s[b])-50)-Math.abs(T(s[a])-50));
+  const pAbl=["P4","P5"].filter(k=>s[k]!=null).sort((a,b)=>T(s[b])-T(s[a]));
   let pTxt;
-  if(spread < 10){
+  if(pBip.length===3 && pAbl.length===2){
+    const hiK=pAbl[0], loK=pAbl[1];
+    pTxt = 'あなたの中の5つの要素は、それぞれ次の位置にあります。'+
+      pBip.map(k=>f(k)).join('、')+'という位置です。'+
+      '能力の面では'+f(hiK)+'が強みで、'+f(loK)+'は'+
+      (T(s[loK])<40? 'やや低く、ここに伸びしろがあります。' : '中点に近い範囲に収まっています。');
+  } else if(spread < 10){
     pTxt = '自分の中の5つの項目に大きな差がありません（最も高い所と低い所の差は'+
       Math.round(spread)+'点）。特定の力がとびぬけてあなたを動かしている状態ではありません。'+
       'この場合、行動を決めているのは自分の側の偏りよりも、その時々の場の条件です。'+
@@ -2153,10 +2167,15 @@ function equation(s,d,order){
   } else {
     pTxt = 'あなたを主に動かしているのは、'+f(hi[0])+'と'+f(hi[1])+'です。'+lowTxt(lo);
   }
+  const eBip=["E1","E2","E4"].filter(k=>s[k]!=null)
+    .sort((a,b)=>Math.abs(T(s[b])-50)-Math.abs(T(s[a])-50));
+  const eTxt = eBip.length===3
+    ? '環境の側では、'+eBip.map(k=>f(k)).join('、')+'という位置にあります。'
+    : eTop? '環境の側では'+f(eTop)+'が最も強く働いています。' : '';
   let txt='<div class="eq">あなたの行動 <b>B</b> は、次のように書けます。<br><br>'+
     '<b>B = f(P, E)</b>　（行動は、その人と環境の両方で決まる）<br><br>'+
     '<b>P＝あなたという人</b>　'+pTxt+'<br><br>'+
-    '<b>E＝あなたから見えている環境</b>　環境の側では'+f(eTop)+'が最も強く働いています。'+
+    '<b>E＝あなたから見えている環境</b>　'+eTxt+
     'この感じ方が、あなたにとっての場の見え方を決めています。'+
     '<span class="dim">（この「環境」が何を指すかは、最後の章で触れます）</span><br><br>'+
     '<b>2つのつながり方</b>　';

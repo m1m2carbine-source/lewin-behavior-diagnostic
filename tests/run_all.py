@@ -54,9 +54,9 @@ CHECKS = [
      ['python3', os.path.join('tests', 'dupcheck.py')],
      lambda out: '完全重複: 0件' in out, False),
 
-    ("図と解説が折りたたみに埋もれていないか",
+    ("解説の折りたたみが既定で閉じているか",
      ['python3', os.path.join('tests', 'verify_fold_correct.py')],
-     lambda out: '「この章の図の読み方」' in out and '常時表示' in out, False),
+     lambda out: '「この章の図の読み方」' in out and '閉じた折りたたみの中（非表示）' in out, False),
 
     ("印刷PDFの空白ページ検出",
      ['python3', os.path.join('tests', 'print_iter.py')],

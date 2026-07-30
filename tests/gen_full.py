@@ -42,7 +42,7 @@ fill("full","b"); showResult();
 var out=_els["result"].innerHTML;
 var hs=(out.match(/<h2[^>]*>[\s\S]*?<\/h2>/g)||[]).map(function(x){return x.replace(/<[^>]+>/g,"");});
 check("最初の見出しが位置の提示", hs[0]==="いまのあなたの位置");
-check("2番目が行動特性の内訳", hs[1]==="行動特性の内訳（図で見る）");
+check("2番目が行動特性の内訳", hs[1]==="行動特性の内訳");
 check("3番目が行動の式", hs[2]==="なぜそうなるのか　── あなたの行動の式");
 check("4番目が力の場", hs[3]==="なぜ、分かっていても行動が変わらないのか");
 check("5番目が結論", hs[4]==="総合判定");
@@ -62,7 +62,7 @@ check("対策に なぜ効くか", out.indexOf("なぜあなたに効くか")>=0
 check("対策に 今週の一歩", out.indexOf("今週の一歩")>=0);
 check("対策に 放置すると", out.indexOf("放置すると")>=0);
 check("3か月後の確認項目", out.indexOf("3か月後に見るもの")>=0);
-check("行動特性の内訳が常時表示", out.indexOf("行動特性の内訳（図で見る）")>=0);
+check("行動特性の内訳が常時表示", out.indexOf("行動特性の内訳")>=0);
 check("数値の一覧表は出ない", out.indexOf("数値の一覧")<0);
 check("指標の詳細は折りたたまれている", out.indexOf("組み合わせて見える6つの指標を見る")>=0);
 console.log("=== 妥当性NG時 ===");
