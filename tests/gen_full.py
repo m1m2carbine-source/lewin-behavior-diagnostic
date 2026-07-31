@@ -106,6 +106,48 @@ check("ffb=1.0は得意です／苦手ですと言わない", !!card && !/得意
 console.log("=== classify()の境界帯しきい値 ===");
 check("border: pe=5,ffb=1.0(絶対値<1.76)はtrue", classify({pe:5,ffb:1.0}).border===true);
 check("border: pe=5,ffb=2.0(絶対値>=1.76)はfalse", classify({pe:5,ffb:2.0}).border===false);
+
+console.log("=== 極端回答（全問1）===");
+mode="full"; items=ITEMS.slice(); answers={}; _els["result"]=mk();
+items.forEach(function(it){ answers[it.id]= it.type==="choice"?"a":1; });
+try{
+  showResult();
+  check("全問1でも例外なく描画される", _els["result"].innerHTML.length>800);
+  var s1=subscaleScores();
+  check("全問1のTスコアは20-80の範囲に収まる",
+    Object.keys(s1).every(function(k){ var t=T(s1[k]); return t==null || (t>=20 && t<=80); }));
+  var d1=derive(s1);
+  check("全問1でpe/ffbがNaNにならない", !isNaN(d1.pe) && !isNaN(d1.ffb));
+  _els["dl"].onclick();
+  check("全問1のJSON出力にNaN/undefinedを含まない", !/NaN|undefined/.test(LASTBLOB));
+}catch(e){ fail++; console.log("  X 全問1で例外: "+e.message); }
+
+console.log("=== 極端回答（全問6）===");
+mode="full"; items=ITEMS.slice(); answers={}; _els["result"]=mk();
+items.forEach(function(it){ answers[it.id]= it.type==="choice"?"a":6; });
+try{
+  showResult();
+  check("全問6でも例外なく描画される", _els["result"].innerHTML.length>800);
+  var s6=subscaleScores();
+  check("全問6のTスコアは20-80の範囲に収まる",
+    Object.keys(s6).every(function(k){ var t=T(s6[k]); return t==null || (t>=20 && t<=80); }));
+  var d6=derive(s6);
+  check("全問6でpe/ffbがNaNにならない", !isNaN(d6.pe) && !isNaN(d6.ffb));
+  _els["dl"].onclick();
+  check("全問6のJSON出力にNaN/undefinedを含まない", !/NaN|undefined/.test(LASTBLOB));
+}catch(e){ fail++; console.log("  X 全問6で例外: "+e.message); }
+
+console.log("=== 一部未回答のまま終了 ===");
+mode="full"; items=ITEMS.slice(); answers={}; _els["result"]=mk();
+items.forEach(function(it,idx){ if(idx<items.length/2) answers[it.id]= it.type==="choice"?"a":3; });
+try{
+  showResult();
+  check("一部未回答でも例外なく描画される", _els["result"].innerHTML.indexOf("診断結果")>=0);
+  var sp=subscaleScores();
+  check("未回答が3分の1を超える尺度はnullになる（誤った数値を出さない）",
+    Object.keys(sp).some(function(k){ return sp[k]===null; }));
+}catch(e){ fail++; console.log("  X 一部未回答で例外: "+e.message); }
+
 setTimeout(function(){
   check("読み込みで復元", Object.keys(answers).length===132);
   check("採点が一致", before===JSON.stringify(subscaleScores()));

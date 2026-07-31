@@ -34,6 +34,10 @@ CHECKS = [
       os.path.join('assets', 'example_answers.json')],
      lambda out: '中点スコア' in out or 'プロファイル' in out, False),
 
+    ("JS/Pythonの採点整合性検査",
+     [sys.executable, os.path.join('tests', 'verify_parity.py')],
+     lambda out: '不一致なし' in out, False),
+
     ("重複・表記ゆれの検査",
      [sys.executable, os.path.join('scripts', 'check_report.py'), '--quiet'],
      lambda out: '違反なし' in out, False),
@@ -42,7 +46,7 @@ CHECKS = [
      [sys.executable, os.path.join('scripts', 'check_print.py'), '--quiet'],
      lambda out: '違反なし' in out, False),
 
-    ("機能の回帰テスト（32件）",
+    ("機能の回帰テスト（58件）",
      [sys.executable, os.path.join('tests', 'gen_full.py')],
      None, False),  # 生成後に node で実行するので特別扱い
 
@@ -57,6 +61,10 @@ CHECKS = [
     ("解説の折りたたみが既定で閉じているか",
      [sys.executable, os.path.join('tests', 'verify_fold_correct.py')],
      lambda out: '「この章の図の読み方」' in out and '閉じた折りたたみの中（非表示）' in out, False),
+
+    ("中断・再開（resume）の検証",
+     [sys.executable, os.path.join('tests', 'verify_resume.py')],
+     lambda out: '違反なし' in out, False),
 
     ("印刷PDFの空白ページ検出",
      [sys.executable, os.path.join('tests', 'print_iter.py')],

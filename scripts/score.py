@@ -557,9 +557,33 @@ def main():
     if not args:
         print(__doc__)
         sys.exit(1)
-    with open(args[0], encoding="utf-8") as f:
-        payload = json.load(f)
-    res = score_all(payload)
+
+    path = args[0]
+    try:
+        with open(path, encoding="utf-8") as f:
+            raw = f.read()
+    except FileNotFoundError:
+        sys.exit(f"ファイルが見つかりません: {path}")
+    except UnicodeDecodeError as e:
+        sys.exit(f"ファイルをUTF-8として読み取れません: {path}（{e}）")
+
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as e:
+        sys.exit(f"JSONとして読み取れません: {path}（{e.lineno}行{e.colno}文字目: {e.msg}）")
+
+    if not isinstance(payload, dict) or not isinstance(payload.get("answers"), dict) \
+            or not payload.get("answers"):
+        sys.exit(
+            "answers が見つかりません。ツールの「回答データを保存（JSON）」で"
+            "書き出したファイルを指定してください。"
+        )
+
+    try:
+        res = score_all(payload)
+    except Exception as e:
+        sys.exit(f"採点に失敗しました（{e}）。ファイルの内容を確認してください。")
+
     if as_json:
         print(json.dumps(res, ensure_ascii=False, indent=2))
     else:

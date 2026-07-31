@@ -506,7 +506,7 @@ input:focus-visible,[tabindex]:focus-visible{
     <h3 style="margin-top:0">実施する版を選んでください</h3>
     <div class="modes">
       <button class="mode" data-mode="full"><b>標準版　132問（所要 20〜30分）</b>
-        <span>最も詳細な結果が出ます。21項目すべての点数、7つの指標、タイプの判定、
+        <span>最も詳細な結果が出ます。21項目すべての点数、6つの指標、型の判定、
         そして「あなたの行動の式」までを算出します。</span></button>
       <button class="mode" data-mode="short"><b>短縮版　66問（所要 10〜15分）</b>
         <span>1項目につき3問。おおよその傾向はつかめますが、
@@ -591,9 +591,25 @@ const ITEM_VERSION = "__ITEM_VERSION__";
 let mode="full", items=[], answers={}, page=0;
 
 /* ---------- storage (無ければ黙って諦める) ---------- */
-function save(){ try{ localStorage.setItem(KEY, JSON.stringify({mode,answers,page})); }catch(e){} }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify({mode,answers,page,itemVersion:ITEM_VERSION})); }catch(e){} }
 function load(){ try{ return JSON.parse(localStorage.getItem(KEY)); }catch(e){ return null; } }
 function clearSave(){ try{ localStorage.removeItem(KEY); }catch(e){} }
+
+/* 生の回答オブジェクト（localStorageの再開データ、ファイル復元データの両方）を
+   ITEMSに照らして検証する。壊れた/版が古いデータでも、読み取れる範囲だけを
+   信頼して使う（信頼境界を越えるデータを無検証で使わない）。 */
+function sanitizeAnswers(rawAnswers, formHint){
+  const valid={}; let bad=0;
+  ITEMS.forEach(it=>{
+    const v=rawAnswers[it.id];
+    if(v==null) return;
+    if(it.type==="choice"){ if(["a","b","c","d"].includes(v)) valid[it.id]=v; else bad++; }
+    else { const num=parseInt(v,10);
+           if(num>=1&&num<=6) valid[it.id]=num; else bad++; }
+  });
+  const form=(formHint==="short"||formHint==="screening")? formHint : "full";
+  return {valid, bad, form};
+}
 function saveResultSnapshot(order,s,mode){
   try{
     const scores={}; order.forEach(k=>{ if(s[k]!=null) scores[k]=T(s[k]); });
@@ -604,10 +620,21 @@ function loadResultSnapshot(){ try{ return JSON.parse(localStorage.getItem(KEY_H
 
 /* ---------- 開始 ---------- */
 document.querySelectorAll(".mode").forEach(b=>b.onclick=()=>{ start(b.dataset.mode); });
-(function(){ const s=load(); if(s&&s.answers&&Object.keys(s.answers).length){
+(function(){
+  const s=load();
+  if(!s || typeof s!=="object" || typeof s.answers!=="object" || !s.answers) return;
+  const {valid, bad, form}=sanitizeAnswers(s.answers, s.mode);
+  if(!Object.keys(valid).length){ clearSave(); return; }
+  if(s.itemVersion && s.itemVersion!==ITEM_VERSION){
+    console.warn("前回の保存データは旧版（項目版"+s.itemVersion+"）の設問にもとづいています。"+
+      "設問IDと採点方法は変わっていないため再開できますが、数問の文言が現在の版と異なる場合があります。");
+  }
+  const itemsForForm=ITEMS.filter(it=> form==="full"?true:(form==="short"?it.short:it.screen));
+  const maxPage=Math.max(0, Math.ceil(itemsForForm.length/PER_PAGE)-1);
+  const resumePage=Math.min(maxPage, Math.max(0, parseInt(s.page,10)||0));
   const r=document.getElementById("resume"); r.style.display="inline-block";
-  r.onclick=()=>{ mode=s.mode; answers=s.answers; page=s.page||0; start(mode,true); };
-}})();
+  r.onclick=()=>{ mode=form; answers=valid; page=resumePage; start(mode,true); };
+})();
 
 /* ---------- 保存データの読み込み ---------- */
 document.getElementById("loadBtn").onclick=()=>document.getElementById("loadFile").click();
@@ -621,18 +648,9 @@ document.getElementById("loadFile").onchange=e=>{
       const data=JSON.parse(r.result);
       const a=data.answers || data;
       if(typeof a!=="object" || !Object.keys(a).length) throw new Error("answers が見つかりません");
-      const valid={}; let bad=0;
-      ITEMS.forEach(it=>{
-        const v=a[it.id];
-        if(v==null) return;
-        if(it.type==="choice"){ if(["a","b","c","d"].includes(v)) valid[it.id]=v; else bad++; }
-        else { const num=parseInt(v,10);
-               if(num>=1&&num<=6) valid[it.id]=num; else bad++; }
-      });
+      const {valid, bad, form}=sanitizeAnswers(a, data.形式 || data.form);
       const cnt=Object.keys(valid).length;
       if(!cnt) throw new Error("読み取れる回答が1件もありません");
-      const formRaw = data.形式 || data.form;
-      const form=(formRaw==="short"||formRaw==="screening")? formRaw : "full";
       mode=form;
       items=ITEMS.filter(it=> form==="full"?true:(form==="short"?it.short:it.screen));
       answers=valid; page=0; save();
@@ -1098,7 +1116,7 @@ const IDX={
   cti:{n:"迷う場面での決断力",t:"葛藤耐性",u:"（4場面の平均、50が中点）",
     w:"引っぱる力と引き止める力がつり合って動けなくなる場面で、決められるかどうか。4つの場面の平均です。",
     r:null},
-  quad:{n:"目標設定のタイプ",t:"要求水準の象限",u:"",
+  quad:{n:"目標の置き方",t:"要求水準の象限",u:"",
     w:"目標をどれくらい高く置くかと、結果を見てその目標を動かせるかの組み合わせです。",
     r:null},
   tli:{n:"仕事の持ち帰りやすさ",t:"緊張系負荷",u:"（中点スコアの差、0が真ん中）",
@@ -1236,14 +1254,14 @@ function showResult(force){
       ? '確認できた項目はすべて許容範囲でした。<b>このあとの結果は、そのまま読んで問題ありません。</b>'
       : va.verdict==="参考値として扱う"
       ? '1つが範囲からはずれました。<b>結果は「おおよその目安」として読んでください。</b>'+
-        'タイプの判定を決めつけずに受け取ってください。'
+        '型の判定を決めつけずに受け取ってください。'
       : '2つ以上が範囲からはずれました。<b>このあとの詳しい結果は表示していません。</b>'+
         '日を改めて、もう一度やってみることをおすすめします。');
   }
 
   if(blocked){
     h+='<div class="note"><b>結果の表示を見合わせています</b><br>'+
-       '回答の確認で複数の問題が見つかったため、タイプ判定や行動の式など、'+
+       '回答の確認で複数の問題が見つかったため、型判定や行動の式など、'+
        'このあとの詳しい結果は表示していません。回答データは保存できます。'+
        '内容を理解したうえでそれでも見たい場合は、下のボタンから表示できます。</div>';
     h+='<div class="row noprint" style="margin-top:16px">'+
@@ -1266,7 +1284,7 @@ function showResult(force){
   }
   if(force && va && va.verdict==="再実施を推奨"){
     h+='<div class="note"><b>警告を理解したうえで表示しています。</b>'+
-       '妥当性の確認で複数の問題が見つかった回答です。以下のタイプ判定・行動の式などは、'+
+       '妥当性の確認で複数の問題が見つかった回答です。以下の型判定・行動の式などは、'+
        '参考として読んでください。</div>';
   }
 
@@ -1391,7 +1409,7 @@ function showResult(force){
       t+='　両極性では'+f(bpEnd[0])+'、'+f(bpEnd[1])+'が最も端に寄っています。'+
          'これは長所でも短所でもなく、あなたの行動を特徴づけている位置です。';
     }
-    if(t) h+=you(t+'　これらの組み合わせが、次に示す「行動の式」の内容と、後半に示すタイプ判定を決めています。');
+    if(t) h+=you(t+'　これらの組み合わせが、次に示す「行動の式」の内容と、後半に示す型判定を決めています。');
   }
 
   SEC.profile=h; h='';
@@ -1468,7 +1486,7 @@ function showResult(force){
   /* 3 類型 */
   if(cls){
     const td=TYPEDESC[cls.name];
-    h+='<h2>あなたのタイプと、組むとよい相手</h2>';
+    h+='<h2>あなたの型と、組むとよい相手</h2>';
     h+='<p class="dim">冒頭の「いまのあなたの位置」で、あなたは<b>'+td.nick+'</b>と判定されています。'+
       'ここではその型の詳しい説明と、あなたの苦手を補ってくれる相手を補足として示します。'+
       '型は入り口であり、上で見た位置や式のほうが本体です。</p>';
@@ -1492,7 +1510,7 @@ function showResult(force){
       '<div class="dim" style="font-size:12px">専門用語：'+td.tech+'</div>'+
       (cls.weakName? '<div class="dim">苦手な場面：'+cls.weakName+'</div>':'')+
       (cls.border? '<div class="note">2つの軸のどちらかが、ちょうど分かれ目の近くにあります。'+
-        'このタイプは仮のものと考えて、隣のタイプの説明もあわせて読んでください。</div>':'')+
+        'この型は仮のものと考えて、隣の型の説明もあわせて読んでください。</div>':'')+
       '<p style="margin-top:12px">'+td.s+'</p>'+
       '<div class="sw"><div class="sw-a"><h3 style="margin-top:0">強み</h3><p>'+td.strong+'</p></div>'+
       '<div class="sw-b"><h3 style="margin-top:0">苦手</h3><p>'+td.weak+'</p></div></div>'+
@@ -1686,7 +1704,7 @@ function showResult(force){
      型（4分類）は連続量である2軸の位置を切って呼び名にした入り口に
      過ぎず、結論ではない（レヴィン自身が1931年に二分法的な分類を
      批判している）。そのため「いまのあなたの位置」で軸の位置と型名の
-     両方に触れたあとは、型の詳しい説明（あなたのタイプと、組むとよい
+     両方に触れたあとは、型の詳しい説明（あなたの型と、組むとよい
      相手）をサブコンテンツとして対策・場面のあとに回す。
      ただし21項目の図（能力系・両極性）とその読み方の解説は、
      折りたたみに入れず常時表示にする。図と、図を理解するための解説は
@@ -1922,7 +1940,7 @@ function fold(title, body){
    「あなたは調整力があります」のような文は、誰にでも当てはまるため
    当たっていなくても読み手が気づけない（バーナム効果）。
    フォアラーの結論は「感じられる正確さを妥当性の証拠にしてはならない」。
-   そこでタイプを言い渡す代わりに、観察できる出来事で本人に確かめてもらう。
+   そこで型を言い渡す代わりに、観察できる出来事で本人に確かめてもらう。
    これは正式なMBTIが専門家との対話で行う「ベストフィットタイプの確認」を、
    ひとりでもできる形に落としたもの。 */
 function axisBar(label, lo, hi, v, range){
@@ -1959,7 +1977,7 @@ function portraitBlock(cls,d){
     '<ul class="chk">'+td.checks.map(c=>'<li>'+c+'</li>').join('')+'</ul>'+
     '<div class="note" style="margin-bottom:0"><b>当てはまるものが0〜1個なら、この判定は外れています。</b><br>'+
     '心当たりがなければ、'+(other? '<b>'+other.nick+'（'+td.near+'）</b>':'ほかの型')+
-    'の説明のほうが近いかもしれません（下の「あなたのタイプと、組むとよい相手」に4つとも載せています）。'+
+    'の説明のほうが近いかもしれません（下の「あなたの型と、組むとよい相手」に4つとも載せています）。'+
     '<span class="dim">型の名前の再現性については、後半の「この診断が測れていないこと」に書いています。</span></div></div>';
 }
 

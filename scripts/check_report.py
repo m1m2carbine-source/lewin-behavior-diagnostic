@@ -78,6 +78,36 @@ def render(prof_js):
     return r.stdout
 
 
+# 「タイプ」を含んでいてもよい行（型判定とは無関係な一般的な言い回し・MBTI公式用語の引用）
+ALLOWED_TYPE_LINES = (
+    "リスク管理に強いタイプです",
+    "予防に強いタイプです",
+    "ベストフィットタイプの確認",
+)
+
+
+def check_static_terms():
+    """showResult()の出力ではなく、生成済みHTML全体（導入画面などの静的テキストを含む）を検査する。
+    4類型判定は「型」に呼び名を統一する方針だが、その方針はshowResult()の出力にしか
+    及ばないため、静的HTMLに残る「タイプ」表記の再発をここで機械的に検出する。"""
+    html = open(HTML, encoding="utf-8").read()
+    bad = []
+    for i, line in enumerate(html.split("\n"), 1):
+        if "タイプ" in line and not any(a in line for a in ALLOWED_TYPE_LINES):
+            bad.append(("型/タイプ表記", f"{i}行目: {line.strip()[:80]}"))
+
+    counts = set()
+    for m in re.finditer(r"(\d+)つの指標", html):
+        prefix = html[max(0, m.start() - 20):m.start()]
+        if "ここまでに見た" in prefix:
+            continue  # 2軸のみを指す別概念（指標の総数の主張ではない）
+        counts.add(int(m.group(1)))
+    if len(counts) > 1:
+        bad.append(("指標の総数の食い違い", f"{sorted(counts)} が混在している"))
+
+    return bad
+
+
 def split_sections(raw):
     secs, cur, buf = [], "（冒頭）", []
     for line in raw.split("\n"):
@@ -180,6 +210,16 @@ def main():
     quiet = "--quiet" in sys.argv
     names = json.load(open(NAMES, encoding="utf-8"))
     ng_total = 0
+
+    bad = check_static_terms()
+    ng_total += len(bad)
+    if bad or not quiet:
+        print("\n=== 静的テキスト（画面全体）===")
+        if not bad:
+            print("  問題なし")
+        for kind, msg in bad:
+            print(f"  [{kind}] {msg}")
+
     for pname, pjs in PROFILES.items():
         bad, total = check(pname, pjs, names)
         ng_total += len(bad)
