@@ -277,7 +277,10 @@ h1{font-size:28px;font-weight:700;margin:0 0 6px;letter-spacing:.01em}
 h2{font-size:24px;font-weight:700;margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
   border-bottom:1px solid var(--line);letter-spacing:.01em}
 h3{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--sub)}
-p{margin:0 0 12px}
+/* 日本語の可読行長は1行35〜40字程度が目安（英語の80字よりずっと短い）。
+   本文の実効フォントサイズに対して34em幅に抑えることで、これに近づける。
+   カード・表・SVGチャートなど、幅そのものが情報である要素には適用しない。 */
+p{margin:0 0 12px;max-width:34em}
 .lead{color:var(--sub);font-size:14.5px;line-height:1.85}
 /* イントロのヒーロー領域。B=f(P,E)の式そのものを第一印象にする。
    数式部分だけ等幅の --font-eq を使い、日本語本文とはっきり区別する。 */
@@ -370,7 +373,7 @@ td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
 .kv dd{margin:0}
 .type{font-size:18px;font-weight:600;margin:4px 0 2px}
 .eq{background:#f4f5f6;border-radius:var(--radius-sm);padding:var(--space-4) var(--space-5);
-  font-size:14px;line-height:1.9}
+  font-size:14px;line-height:1.9;max-width:34em}
 .eq b{color:var(--accent);font-family:var(--font-eq)}
 svg{max-width:100%;height:auto;display:block;margin:8px auto}
 .tag{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:1px 7px;
@@ -385,7 +388,7 @@ details.ex:not([open])>summary::before{content:"▶ "}
 details.ex .body{padding:2px 16px 14px;line-height:1.8}
 details.ex .body p{margin:0 0 9px}
 details.ex .body ul{margin:0 0 9px;padding-left:20px}
-details.ex .body li{margin-bottom:5px}
+details.ex .body li{margin-bottom:5px;max-width:34em}
 .you{background:var(--accent-soft);border-left:3px solid var(--accent);
   border-radius:0 4px 4px 0;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}
 .you b{color:var(--accent)}

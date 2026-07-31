@@ -38,7 +38,9 @@ body{margin:0;color:var(--ink);
 .wrap{max-width:760px;margin:0 auto;padding:var(--space-7) 20px 80px}
 h2{font-size:22px;font-weight:700;margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
   border-bottom:1px solid var(--line);letter-spacing:.01em}
-p{margin:0 0 14px}
+/* 日本語は1行35〜40字程度が読みやすさの目安。本文の実効フォントサイズに
+   対して34em幅に抑える（カード・FAQ・チャートの幅はそのまま）。 */
+p{margin:0 0 14px;max-width:34em}
 a{color:var(--accent)}
 .eyebrow{font-size:12.5px;letter-spacing:.18em;color:var(--sub);margin:0 0 var(--space-3)}
 .hero-eq{font-family:var(--font-eq);font-size:clamp(34px,8vw,58px);font-weight:700;
@@ -69,6 +71,12 @@ svg{max-width:100%;height:auto;display:block;margin:8px auto}
 .versions .t{font-size:12px;color:var(--sub);font-weight:400}
 .versions .d{font-size:12.5px;color:var(--sub);line-height:1.7}
 @media (max-width:600px){.versions{grid-template-columns:1fr}}
+.faq{margin:var(--space-4) 0}
+.faq>div{margin:0 0 var(--space-4)}
+.faq dt{font-weight:600;font-size:15px;margin:0 0 4px}
+.faq dt::before{content:"Q. ";color:var(--accent)}
+.faq dd{margin:0;color:var(--sub);font-size:14.5px;line-height:1.8;max-width:34em}
+.faq dd::before{content:"A. ";color:var(--faint)}
 .you{background:var(--accent-soft);border-left:3px solid var(--accent);
   border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;margin:12px 0;font-size:14.5px}
 .you b{color:var(--accent)}
@@ -162,6 +170,20 @@ footer .url{font-size:13px;color:var(--sub);word-break:break-all;margin-top:var(
       <div class="d">回答の確認指標まで出る完全版</div>
     </div>
   </div>
+
+  <h2>よくある質問</h2>
+  <dl class="faq">
+    <div><dt>途中でやめても大丈夫ですか？</dt>
+    <dd>はい。回答はこの端末に自動的に保存され、次に開いたときに続きから再開できます。</dd></div>
+    <div><dt>何度でも受け直せますか？</dt>
+    <dd>回数の制限はありません。ただし結果は今の環境の中でのあなたを写したものなので、
+    期間をあけて受け直すのがおすすめです。</dd></div>
+    <div><dt>スマートフォンでも使えますか？</dt>
+    <dd>はい。ブラウザが動く端末であれば、スマートフォンやタブレットでも利用できます。</dd></div>
+    <div><dt>結果を保存したり、誰かに見せたりできますか？</dt>
+    <dd>JSON・CSV形式でこの端末にダウンロードできます。保管や共有はご自身の手で行っていただく形で、
+    ツール側から外部に送信することはありません。</dd></div>
+  </dl>
 
   <div class="you"><b>回答も結果も、この端末の外には出ません</b><br>
     ツールはブラウザの中だけで計算しています。外部のサーバーへの送信は一切ありません。
