@@ -2006,19 +2006,19 @@ function forcefield(s, rowH){
   const H=Math.max(drive.length,hold.length)*rowH+70;
   let g='<svg viewBox="0 0 620 '+H+'" role="img" aria-label="力の場分析">';
   g+='<line x1="310" y1="20" x2="310" y2="'+(H-30)+'" stroke="var(--axis)" stroke-width="2" stroke-linecap="round"/>';
-  g+='<text x="310" y="'+(H-12)+'" font-size="11" text-anchor="middle" fill="#5b636c">今の状態</text>';
+  g+='<text x="310" y="'+(H-12)+'" font-size="11" text-anchor="middle" fill="var(--faint)">今の状態</text>';
   g+='<text x="120" y="16" font-size="11" fill="var(--drive)" text-anchor="middle">変えようとする力</text>';
   g+='<text x="500" y="16" font-size="11" fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>';
   drive.forEach((x,i)=>{ const y=42+i*rowH, len=Math.max(24,((x[1]-20)/60)*180);
     g+='<line x1="'+(305-len)+'" y1="'+y+'" x2="300" y2="'+y+'" stroke="var(--drive)" stroke-width="'+
       (1+(x[1]-20)/20).toFixed(1)+'" marker-end="url(#ar1)"/>'+
-      '<text x="'+(300-len-8)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#1c1f23">'+
-      x[0]+' <tspan fill="#5b636c">'+x[1]+'</tspan></text>'; });
+      '<text x="'+(300-len-8)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="var(--ink)">'+
+      x[0]+' <tspan fill="var(--faint)">'+x[1]+'</tspan></text>'; });
   hold.forEach((x,i)=>{ const y=42+i*rowH, len=Math.max(24,((x[1]-20)/60)*180);
     g+='<line x1="'+(315+len)+'" y1="'+y+'" x2="320" y2="'+y+'" stroke="var(--hold)" stroke-width="'+
       (1+(x[1]-20)/20).toFixed(1)+'" marker-end="url(#ar2)"/>'+
-      '<text x="'+(320+len+8)+'" y="'+(y+4)+'" font-size="11" fill="#1c1f23">'+
-      x[0]+' <tspan fill="#5b636c">'+x[1]+'</tspan></text>'; });
+      '<text x="'+(320+len+8)+'" y="'+(y+4)+'" font-size="11" fill="var(--ink)">'+
+      x[0]+' <tspan fill="var(--faint)">'+x[1]+'</tspan></text>'; });
   g+='<defs><marker id="ar1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">'+
      '<path d="M0,0 L7,3 L0,6 z" fill="var(--drive)"/></marker>'+
      '<marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">'+
