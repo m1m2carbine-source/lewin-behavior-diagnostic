@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="レヴィンの行動理論（B = f(P, E)）にもとづく、行動特性と変化への向き合い方のセルフチェックツール。回答はこの端末の中だけで処理され、外部には送信されません。">
+<meta property="og:type" content="website">
+<meta property="og:title" content="B = f(P, E) ── レヴィン行動理論による特性診断">
+<meta property="og:description" content="あなたを動かしている「本人の側の力」と「環境の側の力」を分けて測る、ブラウザ完結のセルフチェックツール。">
+<meta property="og:url" content="https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/promo/landing.html">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230b6bcb'/%3E%3Ctext x='32' y='45' font-family='Arial,Helvetica,sans-serif' font-size='36' font-weight='700' fill='white' text-anchor='middle'%3EL%3C/text%3E%3C/svg%3E">
+<title>B = f(P, E) ── レヴィン行動理論による特性診断</title>
+<style>
+:root{
+  --ink:#1c1f23; --sub:#565e66; --faint:#676f77; --line:#c9ced4; --bg:#fbfbfa; --card:#ffffff;
+  --accent:#215070; --accent-soft:#e8eff4; --warn:#7a4d16; --warn-bg:#fdf6e8; --focus:#0b6bcb;
+  --drive:#2f5d7c; --hold:#8a5a4a;
+  --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px;
+  --radius:10px; --radius-sm:6px;
+  --shadow-card:0 1px 2px rgba(28,31,35,.04), 0 6px 20px rgba(28,31,35,.07);
+  --font-eq:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
+  /* 背景の演出も「推進力／抑止力」の語彙で作る。2つの淡いにじみを対角に置き、
+     細い斜線を力線に見立てて重ねる。コンテンツを乗せるカード類は不透明な
+     背景を持つので、この模様は余白部分にだけ透けて見える。 */
+  --wash-drive:rgba(47,93,124,.07); --wash-hold:rgba(138,90,74,.07); --wash-line:rgba(28,31,35,.035);
+}
+*{box-sizing:border-box}
+body{margin:0;color:var(--ink);
+  background-color:var(--bg);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 0% 0%, var(--wash-drive), transparent 60%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, var(--wash-hold), transparent 60%),
+    repeating-linear-gradient(135deg, var(--wash-line) 0 1px, transparent 1px 28px);
+  background-attachment:scroll;
+  font-family:"Yu Gothic","游ゴシック体",YuGothic,"Hiragino Sans","Noto Sans JP",sans-serif;
+  font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%}
+.wrap{max-width:760px;margin:0 auto;padding:var(--space-7) 20px 80px}
+h2{font-size:22px;font-weight:700;margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
+  border-bottom:1px solid var(--line);letter-spacing:.01em}
+p{margin:0 0 14px}
+a{color:var(--accent)}
+.eyebrow{font-size:12.5px;letter-spacing:.18em;color:var(--sub);margin:0 0 var(--space-3)}
+.hero-eq{font-family:var(--font-eq);font-size:clamp(34px,8vw,58px);font-weight:700;
+  letter-spacing:.01em;margin:0 0 var(--space-3);line-height:1.15;
+  background:linear-gradient(90deg,var(--drive),var(--hold));
+  -webkit-background-clip:text;background-clip:text;color:var(--drive)}
+@supports (-webkit-background-clip:text) or (background-clip:text){
+  .hero-eq{-webkit-text-fill-color:transparent}
+}
+.hero-sub{font-size:19px;color:var(--sub);margin:0 0 var(--space-4);line-height:1.7}
+.hero-rule{height:3px;border:0;margin:var(--space-4) 0 var(--space-5);border-radius:2px;
+  background:linear-gradient(90deg,var(--drive),var(--hold));max-width:220px}
+.lead{font-size:16px;line-height:1.9;color:var(--ink)}
+.cta{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);
+  padding:14px 30px;font-size:16px;font-weight:600;letter-spacing:.02em;text-decoration:none;
+  box-shadow:0 1px 2px rgba(28,31,35,.12);transition:filter .15s,box-shadow .15s;margin:var(--space-4) 0}
+.cta:hover{filter:brightness(.92);box-shadow:0 2px 8px rgba(28,31,35,.18)}
+@media (prefers-reduced-motion:reduce){.cta{transition:none}}
+a:focus-visible,.cta:focus-visible{outline:3px solid var(--focus);outline-offset:2px;border-radius:3px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  padding:var(--space-5);margin:var(--space-4) 0;box-shadow:var(--shadow-card)}
+.preview-cap{font-size:13.5px;color:var(--sub);margin-top:var(--space-2)}
+svg{max-width:100%;height:auto;display:block;margin:8px auto}
+.versions{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--space-3);margin:var(--space-4) 0}
+.versions>div{border:1px solid var(--line);border-radius:var(--radius-sm);padding:var(--space-4);background:var(--card)}
+.versions .n{font-size:12px;color:var(--sub)}
+.versions .v{font-size:21px;font-weight:700;font-family:var(--font-eq);margin:4px 0}
+.versions .t{font-size:12px;color:var(--sub);font-weight:400}
+.versions .d{font-size:12.5px;color:var(--sub);line-height:1.7}
+@media (max-width:600px){.versions{grid-template-columns:1fr}}
+.you{background:var(--accent-soft);border-left:3px solid var(--accent);
+  border-radius:0 var(--radius-sm) var(--radius-sm) 0;padding:12px 16px;margin:12px 0;font-size:14.5px}
+.you b{color:var(--accent)}
+.note{background:var(--warn-bg);border-left:3px solid var(--warn);padding:12px 16px;
+  font-size:13.5px;margin:12px 0;border-radius:0 var(--radius-sm) var(--radius-sm) 0}
+footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);text-align:center}
+footer .url{font-size:13px;color:var(--sub);word-break:break-all;margin-top:var(--space-3)}
+@media (prefers-color-scheme:dark){
+  :root{
+    --ink:#e9edf1; --sub:#b6bfc8; --faint:#9aa4ae; --line:#454d55; --bg:#16191c; --card:#1e2226;
+    --accent:#7fb8dc; --accent-soft:#22323d; --warn:#e0b877; --warn-bg:#2c2617; --focus:#6cb6ff;
+    --drive:#7fb8dc; --hold:#e0b877;
+    --wash-drive:rgba(127,184,220,.10); --wash-hold:rgba(224,184,119,.10); --wash-line:rgba(233,237,241,.045);
+  }
+  svg text,svg tspan{fill:var(--ink)}
+  .cta{color:#0f1720}
+}
+@media print{
+  body{background-image:none}
+  .hero-eq{background:none;-webkit-text-fill-color:#000;color:#000}
+  .hero-rule{background:#000}
+  .cta{background:#000}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <p class="eyebrow">レヴィンの行動理論による特性診断</p>
+  <p class="hero-eq">B&nbsp;=&nbsp;f(P,&nbsp;E)</p>
+  <p class="hero-sub">行動は、<b>その人（P）</b>と<b>環境（E）</b>の両方で決まる。</p>
+  <hr class="hero-rule">
+
+  <p class="lead">同じ人でも、置かれた場が変われば動き方は変わります。このツールは、あなたを動かしている
+  「本人の側の力」と「環境の側の力」を21の項目に分けて測り、行動のつまずきがどちらから来ているのかを
+  見直すためのセルフチェックです。回答はこの端末の中だけで処理され、外部には送信されません。</p>
+
+  <a class="cta" href="https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/">いますぐ診断を始める</a>
+
+  <h2>なぜ、P と E を分けて見るのか</h2>
+  <p>「意志が弱いから続かない」「性格だから仕方ない」──行動の理由を、つい本人だけに求めてしまいがちです。
+  心理学者クルト・レヴィンは、行動 B を <b>その人 P と環境 E の関数</b> として捉えました。
+  同じ課題でも、置かれた場（締め切り・周囲の反応・選べる手順）が変われば、動き方は変わります。
+  このツールは、P 側の5尺度・E 側の4尺度を含む21項目から、あなたの中の力と、あなたから見えている環境の力を
+  それぞれ数値化し、両者がどう組み合わさっているかを示します。</p>
+
+  <h2>結果はこう見えます</h2>
+  <svg viewBox="0 0 620 200" role="img" aria-label="力の場分析の例。左は変えようとする力、右は今のままにしておく力を矢印で表す。実際の結果はこのイラストと異なります。">
+    <line x1="310" y1="20" x2="310" y2="170" stroke="var(--faint)" stroke-width="2" stroke-linecap="round"/>
+    <text x="310" y="188" font-size="11" text-anchor="middle" fill="var(--sub)">今の状態</text>
+    <text x="120" y="16" font-size="11" fill="var(--drive)" text-anchor="middle">変えようとする力</text>
+    <text x="500" y="16" font-size="11" fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>
+
+    <line x1="145" y1="60" x2="300" y2="60" stroke="var(--drive)" stroke-width="3" marker-end="url(#ar1)"/>
+    <text x="135" y="64" font-size="11" text-anchor="end" fill="var(--ink)">変わりたい気持ち</text>
+    <line x1="180" y1="100" x2="300" y2="100" stroke="var(--drive)" stroke-width="2.2" marker-end="url(#ar1)"/>
+    <text x="170" y="104" font-size="11" text-anchor="end" fill="var(--ink)">後押しする環境</text>
+
+    <line x1="320" y1="60" x2="470" y2="60" stroke="var(--hold)" stroke-width="3" marker-end="url(#ar2)"/>
+    <text x="480" y="64" font-size="11" fill="var(--ink)">慣れたやり方</text>
+    <line x1="320" y1="100" x2="440" y2="100" stroke="var(--hold)" stroke-width="2.2" marker-end="url(#ar2)"/>
+    <text x="450" y="104" font-size="11" fill="var(--ink)">変えることへの不安</text>
+
+    <defs>
+      <marker id="ar1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 z" fill="var(--drive)"/>
+      </marker>
+      <marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">
+        <path d="M0,0 L7,3 L0,6 z" fill="var(--hold)"/>
+      </marker>
+    </defs>
+  </svg>
+  <p class="preview-cap">矢印の太さと長さが、それぞれの力の大きさを表します（上の図は説明用の例で、実際の結果ではありません）。
+  診断では、あなたの回答から同じ形式の図が作られ、6つの指標・行動の式とあわせて示されます。</p>
+
+  <h2>所要時間から選べます</h2>
+  <div class="versions">
+    <div>
+      <div class="n">スクリーニング版</div>
+      <div class="v">21問<span class="t"> 約3〜5分</span></div>
+      <div class="d">各尺度から1問。まず全体像を見る</div>
+    </div>
+    <div>
+      <div class="n">短縮版</div>
+      <div class="v">66問<span class="t"> 約10〜15分</span></div>
+      <div class="d">各尺度3問＋妥当性3問</div>
+    </div>
+    <div>
+      <div class="n">標準版</div>
+      <div class="v">132問<span class="t"> 約20〜30分</span></div>
+      <div class="d">回答の確認指標まで出る完全版</div>
+    </div>
+  </div>
+
+  <div class="you"><b>回答も結果も、この端末の外には出ません</b><br>
+    ツールはブラウザの中だけで計算しています。外部のサーバーへの送信は一切ありません。
+    登録もアプリのインストールも不要です。</div>
+
+  <div class="note">これは正式に検証された心理検査ではありません。レヴィンの理論枠組みを借りた、
+  自己理解のための道具です。医学的な診断や、採用・人事評価には使用しないでください。</div>
+
+  <footer>
+    <a class="cta" href="https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/">いますぐ診断を始める</a>
+    <div class="url">https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/</div>
+  </footer>
+
+</div>
+</body>
+</html>
