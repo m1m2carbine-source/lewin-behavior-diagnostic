@@ -36,7 +36,7 @@ showResult();
 console.log(_els["result"].innerHTML.replace(/<[^>]+>/g," "));
 '''
 open(_os.path.join(TMP, 'th.js'), 'w', encoding='utf-8').write(stub + js + tail)
-t = subprocess.run(['node', _os.path.join(TMP, 'th.js')], capture_output=True, text=True).stdout
+t = subprocess.run(['node', _os.path.join(TMP, 'th.js')], capture_output=True, text=True, encoding='utf-8').stdout
 
 must = [
     ("B = f(P, E) の式", r"B = f\(P, E\)"),

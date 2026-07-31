@@ -50,7 +50,7 @@ console.log(txt);
 '''
     open(_os.path.join(TMP, 'v.js'), 'w', encoding='utf-8').write(stub + js + tail)
     t = subprocess.run(['node', _os.path.join(TMP, 'v.js')], capture_output=True,
-                       text=True).stdout
+                       text=True, encoding='utf-8').stdout
 
     bad = []
     # 1) AIっぽい定型

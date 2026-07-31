@@ -248,6 +248,10 @@ TEMPLATE = r"""<!DOCTYPE html>
   /* 領域色は色覚多様性でも区別できる組み合わせを選ぶ。
      ただし色は補助であり、領域名は常に文字でも示す（色だけに情報を持たせない）。 */
   --p:#215070; --e:#5a6a2f; --c:#8a4b2a; --f:#553a7a; --g:#7a5a12;
+  /* 力の場分析（forcefield()）専用の配色。他のチャートと違いドメイン色
+     ではなく「変えようとする力／今のままにしておく力」の2区分なので
+     独立した変数にする。ライトモードは以前ハードコードしていた値と同じ。 */
+  --drive:#2f5d7c; --hold:#8a5a4a; --axis:#1c1f23;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
@@ -418,13 +422,18 @@ input:focus-visible,[tabindex]:focus-visible{
     --accent:#7fb8dc; --accent-soft:#22323d; --warn:#e0b877; --warn-bg:#2c2617;
     --focus:#6cb6ff; --ok:#7fc79b; --ng:#f0918a;
     --p:#7fb8dc; --e:#a8c06a; --c:#dd9c74; --f:#b39ae0; --g:#d8bb61;
+    /* --accent（8.23:1）・--warn（9.49:1）・--line（2.06:1）はいずれも
+       背景 --bg:#16191c に対して検証済みの値なのでそのまま再利用する。
+       以前は forcefield() が固定16進色を使っており、軸線がほぼ不可視
+       （1.07:1）、矢印線もコントラスト比不足（2.50:1／3.06:1）だった。 */
+    --drive:#7fb8dc; --hold:#e0b877; --axis:#454d55;
   }
   .scale label,.choices label,.scale em,.card,.idx,details.ex{background:var(--card)}
   th{background:#262b30}
   .eq{background:#22262b}
   .tbar{background:#33393f}
   .qc td.ok{color:var(--ok)} .qc td.ng{color:var(--ng)}
-  svg text{fill:var(--ink)}
+  svg text,svg tspan{fill:var(--ink)}
 }
 /* ── 印刷レイアウト ─────────────────────────────────
    印刷される内容は、画面に表示している内容とそのまま一致させる
@@ -887,10 +896,14 @@ function derive(s){
 function classify(d){
   if(d.pe==null||d.ffb==null) return null;
   /* 境界帯：どちらかの軸が中立圏内なら型を断定しない。
-     PE差 ±1.5・力の場 ±0.15 は、20000人規模のモンテカルロ検証で
-     境界帯の発生率が全体の約24%になるよう校正した値
-     （変更前は約49%が中間型になっていた）。 */
-  const border = (Math.abs(d.pe)<1.5) || (Math.abs(d.ffb)<0.15);
+     PE差 ±1.5・力の場 ±1.76（中点スコア換算後の値。素点0.15を
+     T得点換算式と同じ係数10/0.85で換算＝0.15×10/0.85≈1.76）は、
+     20000人規模のモンテカルロ検証で境界帯の発生率が全体の約24%に
+     なるよう校正した値（変更前は約49%が中間型になっていた）。
+     以前はこの定数が素点スケールの0.15のまま残っており、着手/定着の
+     軸で境界帯と判定される人がほぼ出ない状態になっていた（score.pyの
+     同名定数も同時に修正済み）。 */
+  const border = (Math.abs(d.pe)<1.5) || (Math.abs(d.ffb)<1.76);
   const name = d.pe>0 ? (d.ffb>0?"自ら動き出す型":"決めたことを守り抜く型")
                       : (d.ffb>0?"仕組みを組み替える型":"場に合わせて回す型");
   return {name, border, weak:d.weak, weakName: d.weak? SUBNAMES[d.weak]:null};
@@ -1725,7 +1738,7 @@ function showResult(force){
     const prof={};
     order.forEach(k=>{ prof[k]={項目:SUBNAMES[k], 専門用語:TECH[k], 領域:DOMAIN[k[0]],
       種類:(SCALETYPE[k]==="能"?"能力系":"両極性"), 素点平均:s[k], 中点スコア:T(s[k]),
-      順位:rankOf[k]??null, 判定:band(T(s[k]))}; });
+      順位:rankOf[k]??null, 判定:poleBand(k,T(s[k]))}; });
     return {
       ツール:"レヴィン行動理論 特性診断", 版:"第3版", 項目版:ITEM_VERSION,
       形式:mode, 実施日時:new Date().toISOString(),
@@ -1759,7 +1772,7 @@ function showResult(force){
     c+="項目コード,項目名,専門用語,領域,種類,素点平均,中点スコア,順位,判定\n";
     order.forEach(k=>{ c+=[k,q(SUBNAMES[k]),q(TECH[k]),q(DOMAIN[k[0]]),
       SCALETYPE[k]==="能"?"能力系":"両極性",s[k]??"",T(s[k])??"",rankOf[k]??"",
-      q(band(T(s[k])))].join(",")+"\n"; });
+      q(poleBand(k,T(s[k])))].join(",")+"\n"; });
     /* ブロック2：6件法の設問明細（換算値は数値のみ） */
     c+="\n■ 設問明細（6件法）\n";
     c+="設問コード,所属項目,設問文,回答値,逆転項目,換算値\n";
@@ -1981,8 +1994,8 @@ function scenes(s,d){
     out.push({t:"会議で",b:t,e:ev("G1","G2")});
   }
   if(d.ffb!=null && s.F2!=null){
-    let t = d.ffb>=0.15 ? "始めるのは得意です。ただし、あなたが見ていないと元に戻ります。変えたことを手順書か記録に落とすまでが1件です。"
-          : d.ffb<=-0.15 ? "口火を切るのは得意ではありませんが、動き出したものは最後まで運べます。2番目に入る役回りが向いています。"
+    let t = d.ffb>=1.76 ? "始めるのは得意です。ただし、あなたが見ていないと元に戻ります。変えたことを手順書か記録に落とすまでが1件です。"
+          : d.ffb<=-1.76 ? "口火を切るのは得意ではありませんが、動き出したものは最後まで運べます。2番目に入る役回りが向いています。"
           : "始める力と根づかせる力がつり合っています。ひとりで最後まで運べる反面、負荷も全部ひとりに来ます。";
     t += T(s.F2)>=60 ? "反対しそうな人と、その理由に見当がつきます。" :
          T(s.F2)<40 ? "反対は表面化してから気づきがちです。変える前に「誰が損をするか」を3人分書き出すと変わります。" :
@@ -2110,24 +2123,24 @@ function forcefield(s, rowH){
     .filter(x=>x[1]!=null).map(x=>[forceLabel(x[0]),x[1]]);
   const H=Math.max(drive.length,hold.length)*rowH+70;
   let g='<svg viewBox="0 0 620 '+H+'" role="img" aria-label="力の場分析">';
-  g+='<line x1="310" y1="20" x2="310" y2="'+(H-30)+'" stroke="#1c1f23" stroke-width="2"/>';
+  g+='<line x1="310" y1="20" x2="310" y2="'+(H-30)+'" stroke="var(--axis)" stroke-width="2"/>';
   g+='<text x="310" y="'+(H-12)+'" font-size="11" text-anchor="middle" fill="#5b636c">今の状態</text>';
   g+='<text x="120" y="16" font-size="11" fill="#2f5d7c" text-anchor="middle">変えようとする力</text>';
   g+='<text x="500" y="16" font-size="11" fill="#8a5a4a" text-anchor="middle">今のままにしておく力</text>';
   drive.forEach((x,i)=>{ const y=42+i*rowH, len=Math.max(24,((x[1]-20)/60)*180);
-    g+='<line x1="'+(305-len)+'" y1="'+y+'" x2="300" y2="'+y+'" stroke="#2f5d7c" stroke-width="'+
+    g+='<line x1="'+(305-len)+'" y1="'+y+'" x2="300" y2="'+y+'" stroke="var(--drive)" stroke-width="'+
       (1+(x[1]-20)/20).toFixed(1)+'" marker-end="url(#ar1)"/>'+
       '<text x="'+(300-len-8)+'" y="'+(y+4)+'" font-size="11" text-anchor="end" fill="#1c1f23">'+
       x[0]+' <tspan fill="#5b636c">'+x[1]+'</tspan></text>'; });
   hold.forEach((x,i)=>{ const y=42+i*rowH, len=Math.max(24,((x[1]-20)/60)*180);
-    g+='<line x1="'+(315+len)+'" y1="'+y+'" x2="320" y2="'+y+'" stroke="#8a5a4a" stroke-width="'+
+    g+='<line x1="'+(315+len)+'" y1="'+y+'" x2="320" y2="'+y+'" stroke="var(--hold)" stroke-width="'+
       (1+(x[1]-20)/20).toFixed(1)+'" marker-end="url(#ar2)"/>'+
       '<text x="'+(320+len+8)+'" y="'+(y+4)+'" font-size="11" fill="#1c1f23">'+
       x[0]+' <tspan fill="#5b636c">'+x[1]+'</tspan></text>'; });
   g+='<defs><marker id="ar1" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">'+
-     '<path d="M0,0 L7,3 L0,6 z" fill="#2f5d7c"/></marker>'+
+     '<path d="M0,0 L7,3 L0,6 z" fill="var(--drive)"/></marker>'+
      '<marker id="ar2" markerWidth="7" markerHeight="7" refX="6" refY="3" orient="auto">'+
-     '<path d="M0,0 L7,3 L0,6 z" fill="#8a5a4a"/></marker></defs></svg>'+
+     '<path d="M0,0 L7,3 L0,6 z" fill="var(--hold)"/></marker></defs></svg>'+
      '<p class="dim">矢印の太さと長さは、それぞれの得点の大きさを表します。'+
      (s.F2!=null? '「反対を察知する」は、妨げる力ではないのでこの図には入れていません。' : '')+'</p>';
   return g;

@@ -45,7 +45,7 @@ with sync_playwright() as p:
     b.close()
 
 r = subprocess.run(['pdftotext', _os.path.join(TMP, 'print_preview/iter.pdf'), '-'],
-                    capture_output=True, text=True)
+                    capture_output=True, text=True, encoding='utf-8')
 pages = r.stdout.split('\x0c')
 pages = [pg for pg in pages if pg.strip() or True]
 print(f"総ページ数: {len(pages)-1 if pages and pages[-1].strip()=='' else len(pages)}")

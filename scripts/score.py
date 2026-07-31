@@ -383,12 +383,13 @@ def derived(scores):
 
 def classify(d):
     """境界帯：どちらかの軸が中立圏内なら型を断定しない。PE差±1.5・
-    力の場±0.15は、20000人規模のモンテカルロ検証で境界帯の発生率が
+    力の場±1.76（中点スコア換算後。素点0.15をT得点換算式と同じ係数
+    10/0.85で換算）は、20000人規模のモンテカルロ検証で境界帯の発生率が
     全体の約24%になるよう校正した値（変更前は約49%が中間型だった）。"""
     pe, ffb = d.get("_pe"), d.get("_ffb")
     if pe is None or ffb is None:
         return {"類型": "判定不能"}
-    border = abs(pe) < 1.5 or abs(ffb) < 0.15
+    border = abs(pe) < 1.5 or abs(ffb) < 1.76
     internal = pe > 0
     launching = ffb > 0
     if internal and launching:

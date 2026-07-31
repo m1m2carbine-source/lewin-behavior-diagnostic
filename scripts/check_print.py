@@ -64,7 +64,7 @@ def render(prof_js):
     src = STUB + js + TAIL.replace("__PROF__", prof_js)
     with open("/tmp/_chkprint.js", "w", encoding="utf-8") as f:
         f.write(src)
-    r = subprocess.run(["node", "/tmp/_chkprint.js"], capture_output=True, text=True)
+    r = subprocess.run(["node", "/tmp/_chkprint.js"], capture_output=True, text=True, encoding="utf-8")
     if r.returncode:
         raise RuntimeError(r.stderr[:400])
     return r.stdout

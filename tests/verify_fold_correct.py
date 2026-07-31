@@ -37,7 +37,7 @@ showResult();
 console.log(_els["result"].innerHTML);
 '''
 open(_os.path.join(TMP, 'av.js'), 'w', encoding='utf-8').write(stub + js + tail)
-out = subprocess.run(['node', _os.path.join(TMP, 'av.js')], capture_output=True, text=True).stdout
+out = subprocess.run(['node', _os.path.join(TMP, 'av.js')], capture_output=True, text=True, encoding='utf-8').stdout
 
 
 def extract_div(html, cls):

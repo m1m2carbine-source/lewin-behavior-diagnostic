@@ -65,7 +65,13 @@ CHECKS = [
 
 
 def run(cmd):
-    r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True)
+    # 子プロセス（python/node）自身の標準出力がWindowsのコンソール既定
+    # コードページ（cp932）で書き出されると、こちら側でutf-8として
+    # decodeしようとして失敗する。PYTHONIOENCODINGでpython子プロセスの
+    # 出力エンコーディングをutf-8に固定する（nodeは元々utf-8で出力する
+    # ため影響しない）。
+    env = dict(os.environ, PYTHONIOENCODING='utf-8')
+    r = subprocess.run(cmd, cwd=ROOT, capture_output=True, text=True, encoding='utf-8', env=env)
     return r.returncode, r.stdout + r.stderr
 
 
@@ -79,7 +85,7 @@ def js_syntax_check():
             "getElementById:()=>({classList:{add(){},remove(){}},style:{}})};"
             "const localStorage={getItem:()=>null};")
     open(tmp, 'w', encoding='utf-8').write(stub + js)
-    r = subprocess.run(['node', '--check', tmp], capture_output=True, text=True)
+    r = subprocess.run(['node', '--check', tmp], capture_output=True, text=True, encoding='utf-8')
     return r.returncode == 0, (r.stderr or 'OK')[:200]
 
 
@@ -91,7 +97,7 @@ def regression_test():
     tmp = os.path.join(os.environ.get('TMPDIR', '/tmp'), 'full.js')
     if not os.path.exists(tmp):
         return False, 'テスト用JSが生成されなかった'
-    r = subprocess.run(['node', tmp], capture_output=True, text=True)
+    r = subprocess.run(['node', tmp], capture_output=True, text=True, encoding='utf-8')
     txt = r.stdout + r.stderr
     ok = '失敗 0' in txt
     tail = [ln for ln in txt.strip().split('\n') if ln.strip()][-1:]

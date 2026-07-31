@@ -45,7 +45,7 @@ console.log(o.replace(/<\/(p|li|div|dt|dd|summary|tr|h2|h3)>/g,"\n")
 '''
 open(_os.path.join(TMP, 'an.js'), 'w', encoding='utf-8').write(stub + js + tail)
 raw = subprocess.run(['node', _os.path.join(TMP, 'an.js')], capture_output=True,
-                     text=True).stdout
+                     text=True, encoding='utf-8').stdout
 
 # 章に分ける
 secs = []

@@ -43,7 +43,7 @@ console.log(txt);
 
 open(_os.path.join(TMP, 'dump.js'), 'w', encoding='utf-8').write(stub + js + tail)
 raw = subprocess.run(['node', _os.path.join(TMP, 'dump.js')], capture_output=True,
-                     text=True).stdout
+                     text=True, encoding='utf-8').stdout
 
 # 章ごとに分ける
 sections = []
