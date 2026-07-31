@@ -13,46 +13,44 @@
 <title>B = f(P, E) ── レヴィン行動理論による特性診断</title>
 <style>
 :root{
-  --ink:#1c1f23; --sub:#565e66; --faint:#676f77; --line:#c9ced4; --bg:#fbfbfa; --card:#ffffff;
-  --accent:#215070; --accent-soft:#e8eff4; --warn:#7a4d16; --warn-bg:#fdf6e8; --focus:#0b6bcb;
-  --drive:#2f5d7c; --hold:#8a5a4a;
+  /* 帳簿・天秤の視覚言語（本体と共通）。値はWCAG相対輝度式で検証済み：
+     ink/bg 12.9:1、sub/bg 6.47:1、faint/card 4.91:1、accent/bg 9.54:1、
+     drive/bg 5.52:1、hold/bg 5.14:1。 */
+  --ink:#22262a; --sub:#585349; --faint:#655f50; --line:#b9b2a0; --bg:#efece4; --card:#e6e2d7;
+  --accent:#1c3d5a; --accent-soft:#e4ebf1; --warn:#7a4d16; --warn-bg:#fdf6e8; --focus:#0b6bcb;
+  --drive:#33684a; --hold:#9c4a3c;
   --space-2:8px; --space-3:12px; --space-4:16px; --space-5:24px; --space-6:32px; --space-7:48px;
   --radius:10px; --radius-sm:6px;
   --shadow-card:0 1px 2px rgba(28,31,35,.04), 0 6px 20px rgba(28,31,35,.07);
   --font-eq:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
-  /* 背景の演出も「推進力／抑止力」の語彙で作る。2つの淡いにじみを対角に置き、
-     細い斜線を力線に見立てて重ねる。コンテンツを乗せるカード類は不透明な
-     背景を持つので、この模様は余白部分にだけ透けて見える。 */
-  --wash-drive:rgba(47,93,124,.07); --wash-hold:rgba(138,90,74,.07); --wash-line:rgba(28,31,35,.035);
+  --font-display:Cambria,Constantia,"Hiragino Mincho ProN",Georgia,serif;
 }
 *{box-sizing:border-box}
 body{margin:0;color:var(--ink);
   background-color:var(--bg);
-  background-image:
-    radial-gradient(ellipse 60% 50% at 0% 0%, var(--wash-drive), transparent 60%),
-    radial-gradient(ellipse 60% 50% at 100% 100%, var(--wash-hold), transparent 60%),
-    repeating-linear-gradient(135deg, var(--wash-line) 0 1px, transparent 1px 28px);
-  background-attachment:scroll;
+  /* 帳簿の罫線を思わせる、ごく淡い横罫のテクスチャ（本体と共通の演出） */
+  background-image:repeating-linear-gradient(var(--bg) 0 33px, rgba(185,178,160,.28) 33px 34px);
   font-family:"Yu Gothic","游ゴシック体",YuGothic,"Hiragino Sans","Noto Sans JP",sans-serif;
   font-size:16px;line-height:1.8;-webkit-text-size-adjust:100%}
 .wrap{max-width:760px;margin:0 auto;padding:var(--space-7) 20px 80px}
-h2{font-size:22px;font-weight:700;margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
-  border-bottom:1px solid var(--line);letter-spacing:.01em}
+h2{font-family:var(--font-display);font-style:italic;font-size:22px;font-weight:700;
+  margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
+  border-bottom:2px solid var(--ink);letter-spacing:.01em}
 /* 日本語は1行35〜40字程度が読みやすさの目安。本文の実効フォントサイズに
    対して34em幅に抑える（カード・FAQ・チャートの幅はそのまま）。 */
 p{margin:0 0 14px;max-width:34em}
 a{color:var(--accent)}
 .eyebrow{font-size:12.5px;letter-spacing:.18em;color:var(--sub);margin:0 0 var(--space-3)}
-.hero-eq{font-family:var(--font-eq);font-size:clamp(34px,8vw,58px);font-weight:700;
-  letter-spacing:.01em;margin:0 0 var(--space-3);line-height:1.15;
-  background:linear-gradient(90deg,var(--drive),var(--hold));
-  -webkit-background-clip:text;background-clip:text;color:var(--drive)}
-@supports (-webkit-background-clip:text) or (background-clip:text){
-  .hero-eq{-webkit-text-fill-color:transparent}
-}
+/* 天秤の図を、実寸より大きく・枠の外へ見切れさせて配置する（本体と共通） */
+.hero-sig-wrap{position:relative;overflow:hidden;margin:0 -32px 6px;aspect-ratio:844/378}
+.hero-sig-wrap svg{position:absolute;top:-10.6%;left:50%;width:125%;height:auto;
+  transform:translateX(-50%)}
+.hero-eq{font-family:var(--font-display);font-weight:400;font-size:clamp(34px,8vw,58px);
+  letter-spacing:-.01em;margin:0 0 var(--space-3);line-height:1.15;color:var(--ink)}
+.hero-eq var{font-style:italic;font-weight:700;color:var(--accent)}
 .hero-sub{font-size:19px;color:var(--sub);margin:0 0 var(--space-4);line-height:1.7}
-.hero-rule{height:3px;border:0;margin:var(--space-4) 0 var(--space-5);border-radius:2px;
-  background:linear-gradient(90deg,var(--drive),var(--hold));max-width:220px}
+.hero-rule{height:0;border:0;border-top:1.5px dashed var(--line);
+  margin:var(--space-4) 0 var(--space-5);max-width:260px}
 .lead{font-size:16px;line-height:1.9;color:var(--ink)}
 .cta{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);
   padding:14px 30px;font-size:16px;font-weight:600;letter-spacing:.02em;text-decoration:none;
@@ -86,18 +84,21 @@ footer{margin-top:56px;padding-top:20px;border-top:1px solid var(--line);text-al
 footer .url{font-size:13px;color:var(--sub);word-break:break-all;margin-top:var(--space-3)}
 @media (prefers-color-scheme:dark){
   :root{
-    --ink:#e9edf1; --sub:#b6bfc8; --faint:#9aa4ae; --line:#454d55; --bg:#16191c; --card:#1e2226;
-    --accent:#7fb8dc; --accent-soft:#22323d; --warn:#e0b877; --warn-bg:#2c2617; --focus:#6cb6ff;
-    --drive:#7fb8dc; --hold:#e0b877;
-    --wash-drive:rgba(127,184,220,.10); --wash-hold:rgba(224,184,119,.10); --wash-line:rgba(233,237,241,.045);
+    /* 帳簿を夜に読むイメージ（本体と共通）。値は検証済み：ink/bg 13.96:1、
+       sub/bg 7.92:1、accent/bg 6.92:1、drive/bg 8.12:1、hold/bg 7.34:1。 */
+    --ink:#eae6da; --sub:#b7ae9c; --faint:#968f7d; --line:#4a453c; --bg:#1b1a16; --card:#242320;
+    --accent:#7fa8c9; --accent-soft:#213040; --warn:#e0b877; --warn-bg:#2c2617; --focus:#6cb6ff;
+    --drive:#7fbf95; --hold:#d99a7a;
   }
   svg text,svg tspan{fill:var(--ink)}
   .cta{color:#0f1720}
 }
 @media print{
   body{background-image:none}
-  .hero-eq{background:none;-webkit-text-fill-color:#000;color:#000}
-  .hero-rule{background:#000}
+  .hero-sig-wrap{display:none}
+  .hero-eq{color:#000}
+  .hero-eq var{color:#000}
+  .hero-rule{border-top-color:#000}
   .cta{background:#000}
 }
 </style>
@@ -106,7 +107,36 @@ footer .url{font-size:13px;color:var(--sub);word-break:break-all;margin-top:var(
 <div class="wrap">
 
   <p class="eyebrow">レヴィンの行動理論による特性診断</p>
-  <p class="hero-eq">B&nbsp;=&nbsp;f(P,&nbsp;E)</p>
+  <div class="hero-sig-wrap" aria-hidden="true">
+    <svg viewBox="0 0 480 190" preserveAspectRatio="xMidYMax meet">
+      <line x1="240" y1="20" x2="240" y2="70" stroke="var(--ink)" stroke-width="3"/>
+      <polygon points="220,150 260,150 240,110" fill="var(--ink)"/>
+      <path d="M205,150 A38,38 0 0,0 275,150" stroke="var(--line)" stroke-width="1.5" fill="none"/>
+      <g stroke="var(--faint)" stroke-width="1">
+        <line x1="205" y1="150" x2="205" y2="143"/>
+        <line x1="222" y1="118" x2="227" y2="123"/>
+        <line x1="240" y1="112" x2="240" y2="119"/>
+        <line x1="258" y1="118" x2="253" y2="123"/>
+        <line x1="275" y1="150" x2="275" y2="143"/>
+      </g>
+      <line x1="120" y1="55" x2="360" y2="85" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+      <line x1="120" y1="55" x2="120" y2="100" stroke="var(--faint)" stroke-width="1.5"/>
+      <line x1="360" y1="85" x2="360" y2="130" stroke="var(--faint)" stroke-width="1.5"/>
+      <rect x="84" y="100" width="72" height="18" rx="1" fill="var(--ink)" stroke="var(--drive)" stroke-width="1.5"/>
+      <g stroke="var(--bg)" stroke-width="1">
+        <line x1="98" y1="100" x2="98" y2="118"/><line x1="120" y1="100" x2="120" y2="118"/><line x1="142" y1="100" x2="142" y2="118"/>
+      </g>
+      <text x="120" y="134" font-family="var(--font-display)" font-weight="700" font-size="13"
+        fill="var(--drive)" text-anchor="middle">変えようとする力</text>
+      <rect x="324" y="130" width="72" height="18" rx="1" fill="var(--ink)" stroke="var(--hold)" stroke-width="1.5"/>
+      <g stroke="var(--bg)" stroke-width="1">
+        <line x1="338" y1="130" x2="338" y2="148"/><line x1="360" y1="130" x2="360" y2="148"/><line x1="382" y1="130" x2="382" y2="148"/>
+      </g>
+      <text x="360" y="164" font-family="var(--font-display)" font-weight="700" font-size="13"
+        fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>
+    </svg>
+  </div>
+  <p class="hero-eq"><var>B</var>&nbsp;=&nbsp;f(<var>P</var>,&nbsp;<var>E</var>)</p>
   <p class="hero-sub">行動は、<b>その人（P）</b>と<b>環境（E）</b>の両方で決まる。</p>
   <hr class="hero-rule">
 

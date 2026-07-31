@@ -5,80 +5,105 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>レヴィン行動理論による特性診断 ── A4宣伝チラシ</title>
 <style>
-  html,body{margin:0;background-color:#e7e5e1;
+  :root{
+    /* 帳簿・天秤の視覚言語（本体・landing.htmlと共通）。値は検証済み：
+       ink/bg 12.9:1、sub/bg 6.47:1、accent/bg 9.54:1、drive/bg 5.52:1、hold/bg 5.14:1。 */
+    --ink:#22262a; --sub:#585349; --faint:#655f50; --line:#b9b2a0; --bg:#efece4; --card:#e6e2d7;
+    --accent:#1c3d5a; --drive:#33684a; --hold:#9c4a3c;
+    --font-eq:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
+    --font-display:Cambria,Constantia,"Hiragino Mincho ProN",Georgia,serif;
+  }
+  html,body{margin:0;background-color:var(--bg);
     background-image:
-      radial-gradient(ellipse 55% 45% at 0% 0%, rgba(47,93,124,.09), transparent 60%),
-      radial-gradient(ellipse 55% 45% at 100% 100%, rgba(138,90,74,.09), transparent 60%),
-      repeating-linear-gradient(135deg, rgba(28,31,35,.035) 0 1px, transparent 1px 28px)}
+      radial-gradient(ellipse 55% 45% at 0% 0%, rgba(51,104,74,.09), transparent 60%),
+      radial-gradient(ellipse 55% 45% at 100% 100%, rgba(156,74,60,.09), transparent 60%),
+      repeating-linear-gradient(var(--bg) 0 33px, rgba(185,178,160,.35) 33px 34px)}
   body{display:flex;justify-content:center;padding:40px 20px;box-sizing:border-box;
     font-family:"Yu Gothic","游ゴシック体",YuGothic,"Hiragino Sans","Noto Sans JP",sans-serif}
-  a{color:#215070;text-decoration:none}
+  a{color:var(--accent);text-decoration:none}
   a:hover{color:#0b6bcb;text-decoration:underline}
   @media print{
     @page{size:A4 portrait;margin:0}
     html,body{background:#fff;padding:0;margin:0}
-    #sheet{box-shadow:none!important;margin:0!important}
+    #sheet{box-shadow:none!important;margin:0!important;background:#fff!important}
   }
 </style>
 </head>
 <body>
-<div id="sheet" style="width:794px;height:1123px;background:#fbfbfa;color:#1c1f23;font-size:13.5px;line-height:1.8;box-shadow:0 2px 14px rgba(28,31,35,.16);display:flex;flex-direction:column;box-sizing:border-box;padding:56px 58px 44px">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid #1c1f23;padding-bottom:14px">
+<div id="sheet" style="width:794px;height:1123px;background:var(--bg);color:var(--ink);font-size:13.5px;line-height:1.8;box-shadow:0 2px 14px rgba(28,31,35,.16);display:flex;flex-direction:column;box-sizing:border-box;padding:56px 58px 44px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2px solid var(--ink);padding-bottom:11px">
     <div>
-      <div style="font-size:11.5px;letter-spacing:.22em;color:#565e66;margin-bottom:8px">SELF-CHECK ／ ブラウザで完結するセルフチェック</div>
-      <h1 style="margin:0;font-size:29px;font-weight:600;letter-spacing:.02em;line-height:1.4">レヴィン行動理論による<br>特性診断</h1>
+      <div style="font-size:11.5px;letter-spacing:.22em;color:var(--sub);margin-bottom:8px">SELF-CHECK ／ ブラウザで完結するセルフチェック</div>
+      <h1 style="margin:0;font-family:var(--font-display);font-style:italic;font-size:29px;font-weight:700;letter-spacing:.01em;line-height:1.4">レヴィン行動理論による<br>特性診断</h1>
     </div>
-    <div style="text-align:right;font-size:12px;color:#565e66;line-height:1.7;padding-top:6px">21項目で測る<br>行動特性と、<br>変化への向き合い方</div>
+    <div style="text-align:right;font-size:12px;color:var(--sub);line-height:1.7;padding-top:6px">21項目で測る<br>行動特性と、<br>変化への向き合い方</div>
   </div>
-  <div style="height:3px;border-radius:2px;margin-top:14px;width:130px;background:linear-gradient(90deg,#2f5d7c,#8a5a4a)"></div>
+  <div style="height:0;border-top:2px dashed var(--line);margin-top:11px;width:130px"></div>
 
-  <p style="margin:20px 0 0;font-size:14.5px;line-height:1.95;max-width:34em">同じ人でも、置かれた場が変われば動き方は変わります。この診断は、あなたを動かしている<b style="font-weight:600">「本人の側の力」</b>と<b style="font-weight:600">「環境の側の力」</b>を分けて測り、行動のつまずきがどちらから来ているのかを見直すためのものです。</p>
+  <p style="margin:14px 0 0;font-size:14.5px;line-height:1.95;max-width:34em">同じ人でも、置かれた場が変われば動き方は変わります。この診断は、あなたを動かしている<b style="font-weight:600">「本人の側の力」</b>と<b style="font-weight:600">「環境の側の力」</b>を分けて測り、行動のつまずきがどちらから来ているのかを見直すためのものです。</p>
 
-  <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:26px;align-items:start">
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px;margin-top:20px;align-items:start">
     <div style="display:flex;flex-direction:column;gap:14px">
-      <div style="background:#f4f5f6;border-radius:5px;padding:18px 20px">
-        <div style="font-size:26px;letter-spacing:.02em;color:#215070;font-weight:700;
-          font-family:'SF Mono','Cascadia Code',Consolas,Menlo,monospace">B = f(P, E)</div>
-        <div style="font-size:12.5px;color:#565e66;margin-top:8px;line-height:1.75">行動は、その人とまわりの両方で決まる。<br>クルト・レヴィン『トポロジー心理学の原理』（1936）</div>
+      <div style="background:var(--card);border-radius:5px;padding:18px 20px">
+        <!-- コンパクトな天秤（本体・landing.htmlのヒーローと同じシグネチャー）。
+             A4シート固定サイズに収まるよう、較正弧は省き縦寸法を切り詰めている。 -->
+        <svg viewBox="0 0 320 68" style="width:100%;height:auto;display:block;margin:0 0 4px" aria-hidden="true">
+          <line x1="160" y1="4" x2="160" y2="16" stroke="var(--ink)" stroke-width="2.5"/>
+          <polygon points="148,34 172,34 160,16" fill="var(--ink)"/>
+          <line x1="46" y1="12" x2="274" y2="22" stroke="var(--ink)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="46" y1="12" x2="46" y2="32" stroke="var(--faint)" stroke-width="1"/>
+          <line x1="274" y1="22" x2="274" y2="40" stroke="var(--faint)" stroke-width="1"/>
+          <rect x="20" y="32" width="52" height="11" rx="1" fill="var(--ink)" stroke="var(--drive)" stroke-width="1.2"/>
+          <g stroke="var(--bg)" stroke-width="0.8"><line x1="34" y1="32" x2="34" y2="43"/><line x1="58" y1="32" x2="58" y2="43"/></g>
+          <text x="46" y="53" font-family="var(--font-display)" font-weight="700" font-size="8.5"
+            fill="var(--drive)" text-anchor="middle">変えようとする力</text>
+          <rect x="248" y="40" width="52" height="11" rx="1" fill="var(--ink)" stroke="var(--hold)" stroke-width="1.2"/>
+          <g stroke="var(--bg)" stroke-width="0.8"><line x1="262" y1="40" x2="262" y2="51"/><line x1="286" y1="40" x2="286" y2="51"/></g>
+          <text x="274" y="61" font-family="var(--font-display)" font-weight="700" font-size="8.5"
+            fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>
+        </svg>
+        <div style="font-size:28px;letter-spacing:-.01em;color:var(--ink);font-weight:400;
+          font-family:var(--font-display)"><span style="font-style:italic;font-weight:700;color:var(--accent)">B</span> = f(<span style="font-style:italic;font-weight:700;color:var(--accent)">P</span>, <span style="font-style:italic;font-weight:700;color:var(--accent)">E</span>)</div>
+        <div style="font-size:12.5px;color:var(--sub);margin-top:8px;line-height:1.75">行動は、その人とまわりの両方で決まる。<br>クルト・レヴィン『トポロジー心理学の原理』（1936）</div>
       </div>
       <div style="font-size:13px;line-height:1.85">
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #e3e6e9"><span style="color:#215070;font-weight:600;min-width:74px">B 行動</span><span>実際に起きている動き・止まり</span></div>
-        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid #e3e6e9"><span style="color:#215070;font-weight:600;min-width:74px">P その人</span><span>未完了の残りやすさ、目標水準の置き方、気持ちの切り替え</span></div>
-        <div style="display:flex;gap:10px;padding:8px 0"><span style="color:#215070;font-weight:600;min-width:74px">E まわり</span><span>誘発性、障壁、求める手順の明確さ</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--accent);font-weight:600;min-width:74px">B 行動</span><span>実際に起きている動き・止まり</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)"><span style="color:var(--accent);font-weight:600;min-width:74px">P その人</span><span>未完了の残りやすさ、目標水準の置き方、気持ちの切り替え</span></div>
+        <div style="display:flex;gap:10px;padding:8px 0"><span style="color:var(--accent);font-weight:600;min-width:74px">E まわり</span><span>誘発性、障壁、求める手順の明確さ</span></div>
       </div>
     </div>
 
-    <div style="display:flex;flex-direction:column;gap:9px">
-      <div style="font-size:11.5px;letter-spacing:.14em;color:#565e66;border-bottom:1px solid #c9ced4;padding-bottom:6px">測定する5領域・21尺度</div>
-      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#215070;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">P　本人の側の力<span style="color:#676f77;font-weight:400;font-size:12px">　5尺度</span></div><div style="font-size:12px;color:#565e66;line-height:1.6">未完了の残りやすさ／目標水準の置き方／成功志向か失敗回避か</div></div></div>
-      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#5a6a2f;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">E　環境の側の力<span style="color:#676f77;font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:#565e66;line-height:1.6">魅力への反応／不快への感度／迂回路</div></div></div>
-      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#8a4b2a;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">C　迷う場面<span style="color:#676f77;font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:#565e66;line-height:1.6">どちらも魅力的／どちらも避けたい／魅力と不安</div></div></div>
-      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#553a7a;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">F　変化への向き合い方<span style="color:#676f77;font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:#565e66;line-height:1.6">動き出す／反対を察知する／崩す／定着させる</div></div></div>
-      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#7a5a12;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">G　集団の中での動き<span style="color:#676f77;font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:#565e66;line-height:1.6">異論／決め方／人の動かし方／集団への関わり</div></div></div>
-      <div style="font-size:11px;color:#676f77;line-height:1.6;margin-top:2px">結果画面ではこの21尺度を、高いほうが良い「能力系11項目」と、優劣なくどちら寄りかを示す「両極性9項目」に分けて示します。</div>
+    <div style="display:flex;flex-direction:column;gap:6px">
+      <div style="font-size:11.5px;letter-spacing:.14em;color:var(--sub);border-bottom:1px solid var(--line);padding-bottom:6px">測定する5領域・21尺度</div>
+      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#215070;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">P　本人の側の力<span style="color:var(--faint);font-weight:400;font-size:12px">　5尺度</span></div><div style="font-size:12px;color:var(--sub);line-height:1.6">未完了の残りやすさ／目標水準の置き方／成功志向か失敗回避か</div></div></div>
+      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#5a6a2f;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">E　環境の側の力<span style="color:var(--faint);font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:var(--sub);line-height:1.6">魅力への反応／不快への感度／迂回路</div></div></div>
+      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#8a4b2a;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">C　迷う場面<span style="color:var(--faint);font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:var(--sub);line-height:1.6">どちらも魅力的／どちらも避けたい／魅力と不安</div></div></div>
+      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#553a7a;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">F　変化への向き合い方<span style="color:var(--faint);font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:var(--sub);line-height:1.6">動き出す／反対を察知する／崩す／定着させる</div></div></div>
+      <div style="display:flex;gap:11px;align-items:baseline"><span style="width:5px;height:34px;background:#7a5a12;flex:none"></span><div><div style="font-weight:600;font-size:13.5px">G　集団の中での動き<span style="color:var(--faint);font-weight:400;font-size:12px">　4尺度</span></div><div style="font-size:12px;color:var(--sub);line-height:1.6">異論／決め方／人の動かし方／集団への関わり</div></div></div>
+      <div style="font-size:11px;color:var(--faint);line-height:1.6;margin-top:2px">結果画面ではこの21尺度を、高いほうが良い「能力系11項目」と、優劣なくどちら寄りかを示す「両極性9項目」に分けて示します。</div>
     </div>
   </div>
 
-  <div style="margin-top:26px;border-top:1px solid #c9ced4;border-bottom:1px solid #c9ced4;padding:16px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
-    <div><div style="font-size:12px;color:#565e66">スクリーニング版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">21問<span style="font-size:12.5px;font-weight:400;color:#565e66">　約3〜5分</span></div><div style="font-size:11.5px;color:#676f77;line-height:1.6">各尺度から1問。まず全体像を見る</div></div>
-    <div><div style="font-size:12px;color:#565e66">短縮版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">66問<span style="font-size:12.5px;font-weight:400;color:#565e66">　約10〜15分</span></div><div style="font-size:11.5px;color:#676f77;line-height:1.6">各尺度3問＋妥当性3問</div></div>
-    <div><div style="font-size:12px;color:#565e66">標準版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">132問<span style="font-size:12.5px;font-weight:400;color:#565e66">　約20〜30分</span></div><div style="font-size:11.5px;color:#676f77;line-height:1.6">回答の確認指標まで出る完全版</div></div>
+  <div style="margin-top:18px;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:12px 0;display:grid;grid-template-columns:repeat(3,1fr);gap:24px">
+    <div><div style="font-size:12px;color:var(--sub)">スクリーニング版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">21問<span style="font-size:12.5px;font-weight:400;color:var(--sub)">　約3〜5分</span></div><div style="font-size:11.5px;color:var(--faint);line-height:1.6">各尺度から1問。まず全体像を見る</div></div>
+    <div><div style="font-size:12px;color:var(--sub)">短縮版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">66問<span style="font-size:12.5px;font-weight:400;color:var(--sub)">　約10〜15分</span></div><div style="font-size:11.5px;color:var(--faint);line-height:1.6">各尺度3問＋妥当性3問</div></div>
+    <div><div style="font-size:12px;color:var(--sub)">標準版</div><div style="font-size:19px;font-weight:600;letter-spacing:.02em">132問<span style="font-size:12.5px;font-weight:400;color:var(--sub)">　約20〜30分</span></div><div style="font-size:11.5px;color:var(--faint);line-height:1.6">回答の確認指標まで出る完全版</div></div>
   </div>
 
   <!-- チラシのZ字型視線導線（左上→右上→対角→右下）の終着点に、
        CTAであるQRコードが来るよう右側に置く。 -->
-  <div style="display:flex;gap:26px;align-items:center;margin-top:auto;padding-top:26px">
+  <div style="display:flex;gap:26px;align-items:center;margin-top:auto;padding-top:18px">
     <div style="min-width:0;flex:1">
       <div style="font-size:15px;font-weight:600;letter-spacing:.02em">読み取って、紹介ページからはじめられます</div>
-      <div style="font-size:12.5px;color:#215070;word-break:break-all;margin-top:4px">https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/promo/landing.html</div>
-      <div style="font-size:12px;color:#565e66;margin-top:8px;line-height:1.7">回答・結果はすべてこの端末・このブラウザの中だけで処理されます。<b style="font-weight:600;color:#1c1f23">外部のサーバーに送信されることは一切ありません。</b>登録もアプリのインストールも不要です。</div>
+      <div style="font-size:12.5px;color:var(--accent);word-break:break-all;margin-top:4px">https://m1m2carbine-source.github.io/lewin-behavior-diagnostic/promo/landing.html</div>
+      <div style="font-size:12px;color:var(--sub);margin-top:8px;line-height:1.7">回答・結果はすべてこの端末・このブラウザの中だけで処理されます。<b style="font-weight:600;color:var(--ink)">外部のサーバーに送信されることは一切ありません。</b>登録もアプリのインストールも不要です。</div>
     </div>
-    <div style="width:132px;height:132px;flex:none;border:1px solid #c9ced4;background:#fff;padding:8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center">
+    <div style="width:132px;height:132px;flex:none;border:1px solid var(--line);background:#fff;padding:8px;box-sizing:border-box;display:flex;align-items:center;justify-content:center">
       <img class="qr-img" src="" alt="紹介ページのQRコード" style="width:100%;height:100%;image-rendering:pixelated">
     </div>
   </div>
 
-  <div style="margin-top:18px;border-top:1px solid #e3e6e9;padding-top:10px;font-size:10.5px;color:#676f77;line-height:1.65">
+  <div style="margin-top:12px;border-top:1px solid var(--line);padding-top:8px;font-size:10.5px;color:var(--faint);line-height:1.65">
     学術的に検証された心理検査ではなく、統計的な妥当性・信頼性の検証（因子分析等）は行っていません。病気の診断、向き不向きの判定、採用や人事評価には使用しないでください。質問文・21尺度・スコアは本ツールの構成であり、レヴィン本人は質問紙も点数も作っていません。
   </div>
 </div>

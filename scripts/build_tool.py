@@ -239,22 +239,23 @@ TEMPLATE = r"""<!DOCTYPE html>
 <title>レヴィン行動理論による特性診断</title>
 <style>
 :root{
-  /* 本文コントラスト比はWCAG AA（4.5:1）以上を確保する。
-     --sub は #fbfbfa 上で約6.1:1、--faint は約4.7:1。
-     以前使っていた #aeb4ba（約2.3:1）は基準を満たさないため廃止した。
-     値そのものは今回のビジュアル刷新でも維持している（検証済みのため）。 */
-  --ink:#1c1f23; --sub:#565e66; --faint:#676f77; --line:#c9ced4; --bg:#fbfbfa; --card:#ffffff;
-  --accent:#215070; --accent-soft:#e8eff4; --warn:#7a4d16; --warn-bg:#fdf6e8;
+  /* 帳簿・天秤の視覚言語（2026-08の刷新）。本文コントラスト比はWCAG AA
+     （4.5:1）以上を確保する。値はすべてPythonでWCAG相対輝度式を用いて
+     検証済み： ink/bg 12.9:1、sub/bg 6.47:1、sub/card 5.90:1、
+     faint/bg 5.38:1、faint/card 4.91:1、accent/bg 9.54:1、
+     drive/bg 5.52:1、drive/card 5.04:1、hold/bg 5.14:1、hold/card 4.69:1。 */
+  --ink:#22262a; --sub:#585349; --faint:#655f50; --line:#b9b2a0; --bg:#efece4; --card:#e6e2d7;
+  --accent:#1c3d5a; --accent-soft:#e4ebf1; --warn:#7a4d16; --warn-bg:#fdf6e8;
   --focus:#0b6bcb; --ok:#1f5c3d; --ng:#8f2f26;
   /* 領域色は色覚多様性でも区別できる組み合わせを選ぶ。
      ただし色は補助であり、領域名は常に文字でも示す（色だけに情報を持たせない）。 */
   --p:#215070; --e:#5a6a2f; --c:#8a4b2a; --f:#553a7a; --g:#7a5a12;
   /* 力の場分析（forcefield()）専用の配色。他のチャートと違いドメイン色
      ではなく「変えようとする力／今のままにしておく力」の2区分なので
-     独立した変数にする。ライトモードは以前ハードコードしていた値と同じ。
-     この推進色／抑止色の対は、力の場図だけでなくヒーロー表示・進捗バー・
-     区切り線にも一貫して展開し、Lewinの理論そのものを視覚的な語彙にする。 */
-  --drive:#2f5d7c; --hold:#8a5a4a; --axis:#1c1f23;
+     独立した変数にする。この対は、力の場図だけでなくヒーローの天秤・
+     進捗バー・区切り線にも一貫して展開し、Lewinの理論そのものを
+     「力を量って帳簿に記す」という視覚語彙にする（貸方＝緑／借方＝赤茶）。 */
+  --drive:#33684a; --hold:#9c4a3c; --axis:#22262a;
 
   /* 余白スケール（4px刻み）。以前はコンポーネントごとに数値を手打ちしていた。 */
   --space-1:4px; --space-2:8px; --space-3:12px; --space-4:16px;
@@ -267,35 +268,44 @@ TEMPLATE = r"""<!DOCTYPE html>
      （単一ファイル配布・オフライン利用を優先）。OS標準の等幅書体で
      日本語本文と視覚的に区別する。 */
   --font-eq:"SF Mono","Cascadia Code",Consolas,Menlo,monospace;
+  /* ヒーローの数式・見出し専用の書体。数式組版の慣習（変数はイタリック、
+     関数・記号は立体）を再現するため、セリフでイタリックの表現力がある
+     ものを選ぶ。 */
+  --font-display:Cambria,Constantia,"Hiragino Mincho ProN",Georgia,serif;
 }
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);
   font-family:"Yu Gothic","游ゴシック体",YuGothic,"Hiragino Sans","Noto Sans JP",sans-serif;
-  font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%}
+  font-size:15px;line-height:1.75;-webkit-text-size-adjust:100%;
+  /* 帳簿の罫線を思わせる、ごく淡い横罫のテクスチャ */
+  background-image:repeating-linear-gradient(var(--bg) 0 33px, rgba(185,178,160,.28) 33px 34px)}
 .wrap{max-width:820px;margin:0 auto;padding:var(--space-6) 20px 80px}
 h1{font-size:28px;font-weight:700;margin:0 0 6px;letter-spacing:.01em}
-h2{font-size:24px;font-weight:700;margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
-  border-bottom:1px solid var(--line);letter-spacing:.01em}
+h2{font-family:var(--font-display);font-style:italic;font-size:24px;font-weight:700;
+  margin:var(--space-7) 0 var(--space-3);padding-bottom:var(--space-2);
+  border-bottom:2px solid var(--ink);letter-spacing:.01em}
 h3{font-size:14px;font-weight:600;margin:20px 0 6px;color:var(--sub)}
 /* 日本語の可読行長は1行35〜40字程度が目安（英語の80字よりずっと短い）。
    本文の実効フォントサイズに対して34em幅に抑えることで、これに近づける。
    カード・表・SVGチャートなど、幅そのものが情報である要素には適用しない。 */
 p{margin:0 0 12px;max-width:34em}
 .lead{color:var(--sub);font-size:14.5px;line-height:1.85}
-/* イントロのヒーロー領域。B=f(P,E)の式そのものを第一印象にする。
-   数式部分だけ等幅の --font-eq を使い、日本語本文とはっきり区別する。 */
+/* イントロのヒーロー領域。「力の場」を天秤に量り、帳簿に記す、という
+   Lewinの理論の視覚語彙をここに集約する。数式は組版の慣習にならい、
+   変数（B・P・E）はイタリック、関数・記号は立体のセリフで組む。 */
 .hero{margin:0 0 var(--space-6)}
-.hero-eq{font-family:var(--font-eq);font-size:clamp(32px,7vw,52px);font-weight:700;
-  letter-spacing:.01em;margin:0 0 var(--space-2);line-height:1.15;
-  background:linear-gradient(90deg,var(--drive),var(--hold));
-  -webkit-background-clip:text;background-clip:text;color:var(--drive)}
-@supports (-webkit-background-clip:text) or (background-clip:text){
-  .hero-eq{-webkit-text-fill-color:transparent}
-}
-.hero-eq b{font-weight:700}
+/* 天秤の図を、実寸より大きく・枠の外へ見切れさせて配置する
+   （小さく収めるより「量っている最中」の臨場感が出るため）。
+   幅は親要素より広く、縦は較正弧の下端までがちょうど収まる高さにする。 */
+.hero-sig-wrap{position:relative;overflow:hidden;margin:0 -32px 6px;aspect-ratio:844/378}
+.hero-sig-wrap svg{position:absolute;top:-10.6%;left:50%;width:125%;height:auto;
+  transform:translateX(-50%)}
+.hero-eq{font-family:var(--font-display);font-weight:400;font-size:clamp(32px,7vw,52px);
+  letter-spacing:-.01em;margin:0 0 var(--space-2);line-height:1.15;color:var(--ink)}
+.hero-eq var{font-style:italic;font-weight:700;color:var(--accent)}
 .hero-sub{font-size:16px;color:var(--sub);margin:0 0 var(--space-2);line-height:1.7}
-.hero-rule{height:3px;border:0;margin:var(--space-4) 0 var(--space-5);border-radius:2px;
-  background:linear-gradient(90deg,var(--drive),var(--hold));max-width:220px}
+.hero-rule{height:0;border:0;border-top:1.5px dashed var(--line);
+  margin:var(--space-4) 0 var(--space-5);max-width:260px}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
   padding:var(--space-5) var(--space-5);margin:var(--space-4) 0;box-shadow:var(--shadow-card)}
 .btn{display:inline-block;background:var(--accent);color:#fff;border:0;border-radius:var(--radius-sm);
@@ -310,7 +320,7 @@ p{margin:0 0 12px;max-width:34em}
 .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .modes{display:grid;gap:var(--space-3);margin:var(--space-4) 0}
 .mode{border:1px solid var(--line);border-radius:var(--radius-sm);padding:var(--space-3) var(--space-4);
-  cursor:pointer;background:#fff;text-align:left;font-family:inherit;font-size:14px;
+  cursor:pointer;background:var(--card);text-align:left;font-family:inherit;font-size:14px;
   transition:border-color .15s,background-color .15s,box-shadow .15s}
 .mode:hover{border-color:var(--accent);background:var(--accent-soft);box-shadow:var(--shadow-card)}
 @media (prefers-reduced-motion:reduce){.mode{transition:none}}
@@ -331,7 +341,7 @@ p{margin:0 0 12px;max-width:34em}
 .scale{display:grid;grid-template-columns:repeat(6,1fr);gap:4px}
 .scale label{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
   gap:5px;border:1px solid var(--line);border-radius:4px;padding:9px 2px;cursor:pointer;
-  font-size:11px;color:var(--sub);text-align:center;line-height:1.35;background:#fff;
+  font-size:11px;color:var(--sub);text-align:center;line-height:1.35;background:var(--card);
   min-height:44px}
 .scale label:hover{border-color:var(--accent);background:var(--accent-soft)}
 /* display:none だとキーボード操作もスクリーンリーダーでの読み上げもできなくなる。
@@ -343,10 +353,10 @@ p{margin:0 0 12px;max-width:34em}
 .scale label:has(input:checked){border-color:var(--accent);background:var(--accent-soft)}
 .scale em{font-style:normal;min-width:28px;height:28px;border-radius:50%;
   border:1.5px solid var(--line);display:flex;align-items:center;justify-content:center;
-  font-size:13px;background:#fff;font-weight:600;color:var(--ink)}
+  font-size:13px;background:var(--card);font-weight:600;color:var(--ink)}
 .choices{display:grid;gap:6px}
 .choices label{border:1px solid var(--line);border-radius:4px;padding:11px 12px;cursor:pointer;
-  background:#fff;font-size:13.5px;min-height:44px;display:flex;align-items:center}
+  background:var(--card);font-size:13.5px;min-height:44px;display:flex;align-items:center}
 .choices label:hover{border-color:var(--accent);background:var(--accent-soft)}
 .choices input{margin-right:10px;width:18px;height:18px;accent-color:var(--accent);flex:none}
 .choices input:focus-visible{outline:3px solid var(--focus);outline-offset:2px}
@@ -359,10 +369,10 @@ fieldset.q:last-of-type{border-bottom:0}
 legend.qtext{margin-bottom:10px;padding:0;display:block;width:100%}
 table{width:100%;border-collapse:collapse;font-size:13px;margin:8px 0 16px}
 th,td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;vertical-align:middle}
-th{font-weight:600;color:var(--sub);font-size:12px;background:#f4f5f6}
+th{font-weight:600;color:var(--sub);font-size:12px;background:var(--card)}
 td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
   font-family:var(--font-eq)}
-.tbar{height:7px;background:#eceef0;border-radius:3px;position:relative;min-width:110px}
+.tbar{height:7px;background:var(--card);border:1px solid var(--line);border-radius:3px;position:relative;min-width:110px}
 .tbar i{position:absolute;top:0;height:100%;border-radius:3px;background:var(--accent)}
 .tbar u{position:absolute;top:-2px;bottom:-2px;width:1px;background:var(--faint);left:50%}
 .note{background:var(--warn-bg);border-left:3px solid var(--warn);padding:11px 14px;
@@ -372,13 +382,13 @@ td.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;
 .kv dt{color:var(--sub)}
 .kv dd{margin:0}
 .type{font-size:18px;font-weight:600;margin:4px 0 2px}
-.eq{background:#f4f5f6;border-radius:var(--radius-sm);padding:var(--space-4) var(--space-5);
+.eq{background:var(--card);border-radius:var(--radius-sm);padding:var(--space-4) var(--space-5);
   font-size:14px;line-height:1.9;max-width:34em}
 .eq b{color:var(--accent);font-family:var(--font-eq)}
 svg{max-width:100%;height:auto;display:block;margin:8px auto}
 .tag{display:inline-block;border:1px solid var(--line);border-radius:3px;padding:1px 7px;
   font-size:11.5px;color:var(--sub);margin-right:5px}
-details.ex{border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;
+details.ex{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--card);
   margin:10px 0 16px;font-size:13px}
 details.ex>summary{cursor:pointer;padding:9px 14px;color:var(--accent);font-weight:600;
   list-style:none;user-select:none}
@@ -392,7 +402,7 @@ details.ex .body li{margin-bottom:5px;max-width:34em}
 .you{background:var(--accent-soft);border-left:3px solid var(--accent);
   border-radius:0 4px 4px 0;padding:10px 14px;margin:10px 0;font-size:13.5px;line-height:1.8}
 .you b{color:var(--accent)}
-.idx{border:1px solid var(--line);border-radius:var(--radius-sm);background:#fff;
+.idx{border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--card);
   padding:13px 16px;margin:10px 0}
 .idx-h{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:7px}
 .idx-n{font-weight:600;font-size:14.5px}
@@ -458,26 +468,20 @@ input:focus-visible,[tabindex]:focus-visible{
 @media (prefers-contrast:more){
   :root{--ink:#000;--sub:#333a41;--faint:#333a41;--line:#767c83;--accent:#123a52}
   .card,.idx,details.ex,.choices label,.scale label{border-width:2px}
-  /* グラデーションで塗った数式文字は、コントラスト強調時は単色に戻す */
-  .hero-eq{background:none;-webkit-text-fill-color:currentColor;color:var(--ink)}
 }
 /* OSがダークモードなら配色を反転させる（自分で切り替える必要をなくす） */
 @media (prefers-color-scheme:dark){
   :root{
-    --ink:#e9edf1; --sub:#b6bfc8; --faint:#9aa4ae; --line:#454d55; --bg:#16191c; --card:#1e2226;
-    --accent:#7fb8dc; --accent-soft:#22323d; --warn:#e0b877; --warn-bg:#2c2617;
+    /* 帳簿を夜に読むイメージ。値はPythonでWCAG相対輝度式を用いて検証済み：
+       ink/bg 13.96:1、sub/bg 7.92:1、faint/bg 5.41:1、accent/bg 6.92:1、
+       drive/bg 8.12:1、hold/bg 7.34:1、warn/bg 9.36:1。 */
+    --ink:#eae6da; --sub:#b7ae9c; --faint:#968f7d; --line:#4a453c; --bg:#1b1a16; --card:#242320;
+    --accent:#7fa8c9; --accent-soft:#213040; --warn:#e0b877; --warn-bg:#2c2617;
     --focus:#6cb6ff; --ok:#7fc79b; --ng:#f0918a;
     --p:#7fb8dc; --e:#a8c06a; --c:#dd9c74; --f:#b39ae0; --g:#d8bb61;
-    /* --accent（8.23:1）・--warn（9.49:1）・--line（2.06:1）はいずれも
-       背景 --bg:#16191c に対して検証済みの値なのでそのまま再利用する。
-       以前は forcefield() が固定16進色を使っており、軸線がほぼ不可視
-       （1.07:1）、矢印線もコントラスト比不足（2.50:1／3.06:1）だった。 */
-    --drive:#7fb8dc; --hold:#e0b877; --axis:#454d55;
+    --drive:#7fbf95; --hold:#d99a7a; --axis:#968f7d;
   }
-  .scale label,.choices label,.scale em,.card,.idx,details.ex,.mode{background:var(--card)}
-  th{background:#262b30}
-  .eq{background:#22262b}
-  .tbar{background:#33393f}
+  .scale label,.choices label,.scale em,.card,.idx,details.ex,.mode,.eq,th,.tbar{background:var(--card)}
   .qc td.ok{color:var(--ok)} .qc td.ng{color:var(--ng)}
   svg text,svg tspan{fill:var(--ink)}
 }
@@ -502,13 +506,14 @@ input:focus-visible,[tabindex]:focus-visible{
 
   /* 2. 基本設定 */
   .noprint{ display:none!important }
-  body{ background:#fff; color:#000; font-size:9.5pt; line-height:1.45 }
+  body{ background:#fff; background-image:none; color:#000; font-size:9.5pt; line-height:1.45 }
   .wrap{ max-width:none; padding:0 }
-  h1{ font-size:15pt } h2{ font-size:12pt } h3{ font-size:10.5pt }
+  h1{ font-size:15pt } h2{ font-size:12pt; font-style:normal } h3{ font-size:10.5pt }
   p{ orphans:3; widows:3 }
-  /* グラデーション塗りの数式は印刷では単色にする（にじみ・かすれ防止） */
-  .hero-eq{ background:none; -webkit-text-fill-color:#000; color:#000; font-size:26pt }
-  .hero-rule{ background:#000 }
+  /* 数式・区切り線は印刷では単色にする（にじみ・かすれ防止） */
+  .hero-eq{ color:#000; font-size:26pt }
+  .hero-eq var{ color:#000 }
+  .hero-rule{ border-top-color:#000 }
   .card,.idx,details.ex,.eq{ border:1px solid #999; padding:8px 10px; margin:6px 0;
     background:#fff!important }
 
@@ -545,7 +550,39 @@ input:focus-visible,[tabindex]:focus-visible{
 <div id="intro">
   <div class="hero">
     <p class="dim" style="margin:0 0 var(--space-2)">レヴィンの行動理論による特性診断</p>
-    <p class="hero-eq">B&nbsp;=&nbsp;f(P,&nbsp;E)</p>
+    <div class="hero-sig-wrap noprint" aria-hidden="true">
+      <svg viewBox="0 0 480 190" preserveAspectRatio="xMidYMax meet">
+        <line x1="240" y1="20" x2="240" y2="70" stroke="var(--ink)" stroke-width="3"/>
+        <polygon points="220,150 260,150 240,110" fill="var(--ink)"/>
+        <!-- 支点の下に較正弧を添え、天秤に「較正＝計器で量る」の語彙を重ねる -->
+        <path d="M205,150 A38,38 0 0,0 275,150" stroke="var(--line)" stroke-width="1.5" fill="none"/>
+        <g stroke="var(--faint)" stroke-width="1">
+          <line x1="205" y1="150" x2="205" y2="143"/>
+          <line x1="222" y1="118" x2="227" y2="123"/>
+          <line x1="240" y1="112" x2="240" y2="119"/>
+          <line x1="258" y1="118" x2="253" y2="123"/>
+          <line x1="275" y1="150" x2="275" y2="143"/>
+        </g>
+        <line x1="120" y1="55" x2="360" y2="85" stroke="var(--ink)" stroke-width="3" stroke-linecap="round"/>
+        <line x1="120" y1="55" x2="120" y2="100" stroke="var(--faint)" stroke-width="1.5"/>
+        <line x1="360" y1="85" x2="360" y2="130" stroke="var(--faint)" stroke-width="1.5"/>
+        <!-- 皿を目盛り付きの「読み取り窓」にする。窓の地色は常に反転色
+             （明→暗／暗→明）にして、どちらのテーマでも計器の窓らしく浮かせる。 -->
+        <rect x="84" y="100" width="72" height="18" rx="1" fill="var(--ink)" stroke="var(--drive)" stroke-width="1.5"/>
+        <g stroke="var(--bg)" stroke-width="1">
+          <line x1="98" y1="100" x2="98" y2="118"/><line x1="120" y1="100" x2="120" y2="118"/><line x1="142" y1="100" x2="142" y2="118"/>
+        </g>
+        <text x="120" y="134" font-family="var(--font-display)" font-weight="700" font-size="13"
+          fill="var(--drive)" text-anchor="middle">変えようとする力</text>
+        <rect x="324" y="130" width="72" height="18" rx="1" fill="var(--ink)" stroke="var(--hold)" stroke-width="1.5"/>
+        <g stroke="var(--bg)" stroke-width="1">
+          <line x1="338" y1="130" x2="338" y2="148"/><line x1="360" y1="130" x2="360" y2="148"/><line x1="382" y1="130" x2="382" y2="148"/>
+        </g>
+        <text x="360" y="164" font-family="var(--font-display)" font-weight="700" font-size="13"
+          fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>
+      </svg>
+    </div>
+    <p class="hero-eq"><var>B</var>&nbsp;=&nbsp;f(<var>P</var>,&nbsp;<var>E</var>)</p>
     <p class="hero-sub">行動は、<b>その人（P）</b>と<b>環境（E）</b>の両方で決まる。</p>
   </div>
   <hr class="hero-rule">
@@ -2196,8 +2233,8 @@ function forcefield(s, rowH){
   let g='<svg viewBox="0 0 620 '+H+'" role="img" aria-label="力の場分析">';
   g+='<line x1="310" y1="20" x2="310" y2="'+(H-30)+'" stroke="var(--axis)" stroke-width="2" stroke-linecap="round"/>';
   g+='<text x="310" y="'+(H-12)+'" font-size="11" text-anchor="middle" fill="#5b636c">今の状態</text>';
-  g+='<text x="120" y="16" font-size="11" fill="#2f5d7c" text-anchor="middle">変えようとする力</text>';
-  g+='<text x="500" y="16" font-size="11" fill="#8a5a4a" text-anchor="middle">今のままにしておく力</text>';
+  g+='<text x="120" y="16" font-size="11" fill="var(--drive)" text-anchor="middle">変えようとする力</text>';
+  g+='<text x="500" y="16" font-size="11" fill="var(--hold)" text-anchor="middle">今のままにしておく力</text>';
   drive.forEach((x,i)=>{ const y=42+i*rowH, len=Math.max(24,((x[1]-20)/60)*180);
     g+='<line x1="'+(305-len)+'" y1="'+y+'" x2="300" y2="'+y+'" stroke="var(--drive)" stroke-width="'+
       (1+(x[1]-20)/20).toFixed(1)+'" marker-end="url(#ar1)"/>'+
